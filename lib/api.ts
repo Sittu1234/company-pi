@@ -2,25 +2,21 @@
 
 import { clearSession, getAccess, getRefresh, setSession, getStoredUser } from "./auth";
 
-"use client";
+export const LIVE_API = "https://backend-f870.onrender.com";
 
-import { clearSession, getAccess, getRefresh, setSession, getStoredUser } from "./auth";
-
-const LIVE_API = "https://backend-f870.onrender.com";
-
-function resolveApiUrl() {
-  const envUrl = (process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/$/, "");
+export function resolveApiUrl() {
   if (typeof window !== "undefined") {
     const host = window.location.hostname;
-    const onLiveSite = host !== "localhost" && host !== "127.0.0.1";
-    if (onLiveSite && (!envUrl || envUrl.includes("localhost"))) {
+    if (host !== "localhost" && host !== "127.0.0.1") {
       return LIVE_API;
     }
   }
-  return envUrl || "http://localhost:8000";
+  const envUrl = (process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/$/, "");
+  if (envUrl && !envUrl.includes("localhost")) return envUrl;
+  return "http://localhost:8000";
 }
 
-export const API_URL = resolveApiUrl();
+export const API_URL = LIVE_API;
 
 type Options = RequestInit & { auth?: boolean; raw?: boolean };
 
@@ -62,12 +58,13 @@ export async function api<T = unknown>(path: string, options: Options = {}): Pro
   let token = auth ? getAccess() : null;
   if (token) h.set("Authorization", `Bearer ${token}`);
 
-  let res = await fetch(`${resolveApiUrl()}${path}`, { ...rest, headers: h });
+  const base = resolveApiUrl();
+  let res = await fetch(`${base}${path}`, { ...rest, headers: h });
   if (res.status === 401 && auth) {
     token = await refreshAccess();
     if (token) {
       h.set("Authorization", `Bearer ${token}`);
-      res = await fetch(`${resolveApiUrl()}${path}`, { ...rest, headers: h });
+      res = await fetch(`${base}${path}`, { ...rest, headers: h });
     } else if (typeof window !== "undefined") {
       window.location.href = "/login";
     }
