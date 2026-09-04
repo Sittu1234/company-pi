@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --navy: #0a2540;
+  --electric: #2563eb;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  @apply bg-slate-50 text-navy antialiased;
+}
+
+.erp-gradient {
+  background: linear-gradient(135deg, #0a2540 0%, #12355a 50%, #1d4ed8 100%);
+}
+
+.stat-card {
+  @apply rounded-2xl border border-slate-100 bg-white p-5 shadow-card;
+}
+
+.table-wrap {
+  @apply overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-card;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
