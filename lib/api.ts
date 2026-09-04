@@ -2,14 +2,32 @@
 
 import { clearSession, getAccess, getRefresh, setSession, getStoredUser } from "./auth";
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+"use client";
+
+import { clearSession, getAccess, getRefresh, setSession, getStoredUser } from "./auth";
+
+const LIVE_API = "https://backend-f870.onrender.com";
+
+function resolveApiUrl() {
+  const envUrl = (process.env.NEXT_PUBLIC_API_URL || "").trim().replace(/\/$/, "");
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    const onLiveSite = host !== "localhost" && host !== "127.0.0.1";
+    if (onLiveSite && (!envUrl || envUrl.includes("localhost"))) {
+      return LIVE_API;
+    }
+  }
+  return envUrl || "http://localhost:8000";
+}
+
+export const API_URL = resolveApiUrl();
 
 type Options = RequestInit & { auth?: boolean; raw?: boolean };
 
 async function refreshAccess(): Promise<string | null> {
   const refresh = getRefresh();
   if (!refresh) return null;
-  const res = await fetch(`${API_URL}/api/auth/refresh/`, {
+  const res = await fetch(`${resolveApiUrl()}/api/auth/refresh/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ refresh }),
@@ -44,12 +62,12 @@ export async function api<T = unknown>(path: string, options: Options = {}): Pro
   let token = auth ? getAccess() : null;
   if (token) h.set("Authorization", `Bearer ${token}`);
 
-  let res = await fetch(`${API_URL}${path}`, { ...rest, headers: h });
+  let res = await fetch(`${resolveApiUrl()}${path}`, { ...rest, headers: h });
   if (res.status === 401 && auth) {
     token = await refreshAccess();
     if (token) {
       h.set("Authorization", `Bearer ${token}`);
-      res = await fetch(`${API_URL}${path}`, { ...rest, headers: h });
+      res = await fetch(`${resolveApiUrl()}${path}`, { ...rest, headers: h });
     } else if (typeof window !== "undefined") {
       window.location.href = "/login";
     }
