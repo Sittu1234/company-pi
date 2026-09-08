@@ -288,7 +288,7 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
       <div className="rounded-2xl bg-white p-6 shadow-card">
         <p className="text-sm font-bold text-navy">This PI is for *</p>
         <p className="mt-1 text-xs text-slate-500">
-          Terms &amp; conditions PDF ke hisaab se fill honge. Aap neeche customize kar sakte ho.
+          Terms and conditions are filled from the official quotation. You can edit them below.
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {KIND_OPTIONS.map((opt) => {
@@ -452,8 +452,8 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
             <h2 className="font-bold text-navy">Terms and Conditions</h2>
             <p className="text-xs text-slate-500">
               {piKind
-                ? `PDF page 2 par yahi text jayega (${KIND_OPTIONS.find((k) => k.value === piKind)?.label}). Edit kar sakte ho.`
-                : "Pehle Battery, EV Scooter ya Both select karo — phir terms yahan aaenge."}
+                ? `This text is printed on PDF page 2 (${KIND_OPTIONS.find((k) => k.value === piKind)?.label}). You can edit it.`
+                : "Select Battery, EV Scooter or Both to load the terms."}
             </p>
           </div>
           {piKind && termTemplates[piKind] && (

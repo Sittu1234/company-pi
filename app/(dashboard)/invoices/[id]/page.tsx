@@ -67,7 +67,7 @@ export default function InvoiceDetailPage() {
   async function convertTax() {
     const number = taxNo.trim();
     if (!number) {
-      toast.error("Tax invoice number likho");
+      toast.error("Enter a tax invoice number");
       return;
     }
     setSavingTax(true);
@@ -76,7 +76,7 @@ export default function InvoiceDetailPage() {
         method: "POST",
         body: JSON.stringify({ tax_invoice_number: number, tax_invoice_date: taxDate || undefined }),
       });
-      toast.success(`Tax Invoice ${saved.tax_invoice_number} save ho gaya`);
+      toast.success(`Tax Invoice ${saved.tax_invoice_number} saved`);
       setShowConvert(false);
       load();
     } catch (err) {
@@ -89,7 +89,7 @@ export default function InvoiceDetailPage() {
   async function saveTaxNumber() {
     const number = taxNo.trim();
     if (!number) {
-      toast.error("Tax invoice number likho");
+      toast.error("Enter a tax invoice number");
       return;
     }
     setSavingTax(true);
@@ -98,7 +98,7 @@ export default function InvoiceDetailPage() {
         method: "PATCH",
         body: JSON.stringify({ tax_invoice_number: number, tax_invoice_date: taxDate || null }),
       });
-      toast.success("Tax invoice number update ho gaya");
+      toast.success("Tax invoice number updated");
       load();
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Update failed");
@@ -205,7 +205,7 @@ export default function InvoiceDetailPage() {
         <div className="rounded-2xl border border-electric/30 bg-white p-5 shadow-card">
           <h3 className="font-extrabold text-navy">{hasTax ? "Customise tax invoice number" : "Tax invoice number"}</h3>
           <p className="mt-1 text-sm text-slate-500">
-            Number khud likho / change karo. Suggested format: INV-2026-0004 — koi bhi series use kar sakte ho.
+            Enter or change the number. Suggested format: INV-2026-0004 — any series is allowed.
           </p>
           <div className="mt-4 flex flex-wrap items-end gap-3">
             <div className="min-w-[220px] flex-1">

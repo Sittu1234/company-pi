@@ -78,7 +78,7 @@ export default function ProductsPage() {
       <div className="space-y-5">
         <div>
           <h1 className="text-2xl font-extrabold text-navy">Product Catalog</h1>
-          <p className="text-sm text-slate-500">Admin ke PDFs ke saath Price List bhi yahan dikhegi. View only.</p>
+          <p className="text-sm text-slate-500">Admin PDFs and the Price List appear here. View only.</p>
         </div>
         <CatalogPdfs canUpload={false} />
         <PriceListBoard heading={false} />
@@ -90,7 +90,7 @@ export default function ProductsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-extrabold text-navy">Products</h1>
-        <p className="text-sm text-slate-500">Sales catalog PDFs alag hain. Neeche PI ke liye product master hai — add aur customise yahin se.</p>
+        <p className="text-sm text-slate-500">Sales catalog PDFs are separate. Product master below is used when creating a PI — add and customise here.</p>
       </div>
 
       <CatalogPdfs canUpload />
@@ -99,7 +99,7 @@ export default function ProductsPage() {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-lg font-extrabold text-navy">Product master (PI)</h2>
-            <p className="text-sm text-slate-500">Naam, HSN, GST, rate aur photo yahin add / customise karo</p>
+            <p className="text-sm text-slate-500">Add or customise name, HSN, GST, rate and photo</p>
           </div>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => downloadFile("/api/products/export/", "products.xlsx")}>
@@ -120,8 +120,8 @@ export default function ProductsPage() {
                 </h3>
                 <p className="text-xs text-slate-500">
                   {editor.mode === "edit"
-                    ? "Naam, code, category, HSN, GST, price, photo change karo."
-                    : "PI create ke time yeh details auto fill hongi."}
+                    ? "Change name, code, category, HSN, GST, price or photo."
+                    : "These details auto-fill when you create a PI."}
                 </p>
               </div>
               <Button size="icon" variant="ghost" type="button" onClick={closeEditor} aria-label="Close form">
@@ -203,9 +203,9 @@ export default function ProductsPage() {
               {rows.length === 0 && !editor && (
                 <tr>
                   <td colSpan={7} className="px-4 py-10 text-center">
-                    <p className="font-semibold text-navy">Abhi koi product nahi hai</p>
+                    <p className="font-semibold text-navy">No products yet</p>
                     <p className="mt-1 text-sm text-slate-500">
-                      Add Product se naam, HSN, GST, rate aur photo set karo. Baad mein Customise se edit ho jayega.
+                      Use Add Product to set name, HSN, GST, rate and photo. Customise later to edit.
                     </p>
                     <Button className="mt-4" onClick={openAdd}>
                       <Plus size={16} /> Add Product

@@ -36,7 +36,7 @@ export default function CompanyCalendarPage() {
   async function add(e: FormEvent) {
     e.preventDefault();
     if (!title.trim() || !date) {
-      toast.error("Title aur date required");
+      toast.error("Title and date are required");
       return;
     }
     await api("/api/company/events/", {
@@ -64,7 +64,7 @@ export default function CompanyCalendarPage() {
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-extrabold text-navy">Company Calendar</h1>
-        <p className="text-sm text-slate-500">Events, birthdays, festivals aur holidays public page par dikhenge.</p>
+        <p className="text-sm text-slate-500">Events, birthdays, festivals and holidays appear on the public company page.</p>
       </div>
 
       <form onSubmit={add} className="grid gap-3 rounded-2xl bg-white p-5 shadow-card md:grid-cols-2">

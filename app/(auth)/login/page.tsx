@@ -71,7 +71,7 @@ function LoginInner() {
             {preset.label} login
           </h1>
           <p className="mt-4 max-w-md text-blue-100">
-            Pehle role select karo — Admin, Sales ya Accountant — phir Employee ID se sign in karo.
+            Select Admin, Sales or Accountant, then sign in with your Employee ID.
           </p>
         </div>
         <p className="text-xs text-blue-200">© {new Date().getFullYear()} Kalpna Traders</p>
@@ -80,7 +80,7 @@ function LoginInner() {
         <form onSubmit={onSubmit} className="w-full max-w-md rounded-2xl bg-white p-8 shadow-card">
           <p className="text-xs font-semibold uppercase tracking-wide text-electric">Staff login</p>
           <h2 className="mt-1 text-2xl font-extrabold text-navy">Sign in</h2>
-          <p className="mt-1 text-sm text-slate-500">Kaun login kar raha hai — pehle select karo</p>
+          <p className="mt-1 text-sm text-slate-500">Choose who is signing in, then enter your Employee ID or email.</p>
           <div className="mt-6">
             <Label>Login as</Label>
             <Select value={role} onChange={(e) => changeRole(e.target.value as Role)}>

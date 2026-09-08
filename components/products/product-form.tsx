@@ -189,7 +189,7 @@ export function ProductForm({
             checked={form.is_active}
             onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
           />
-          Active (PI create mein dikhega)
+          Active (shown when creating a PI)
         </label>
       </div>
       <div className="flex flex-wrap gap-2">

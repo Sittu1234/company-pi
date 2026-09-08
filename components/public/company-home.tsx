@@ -148,7 +148,7 @@ export function CompanyHome() {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wide text-electric">Company life</p>
             <h2 className="mt-2 text-3xl font-extrabold">Events, birthdays, festivals &amp; holidays</h2>
-            <p className="mt-2 text-slate-600">Jo office mein chal raha hai — meet, cake, tyohar aur chhutti — yahin dikhega.</p>
+            <p className="mt-2 text-slate-600">What is happening in the office — meetings, birthdays, festivals and holidays — all listed here.</p>
           </div>
           <CalendarDays className="text-electric" />
         </div>
@@ -194,7 +194,7 @@ export function CompanyHome() {
           })}
           {!shown.length && (
             <p className="col-span-full rounded-2xl bg-white p-8 text-center text-slate-500 shadow-card">
-              Is filter mein agla item nahi hai. Admin calendar se naya event add kar sakte hain.
+              No upcoming items in this filter. Admins can add events from Company Calendar.
             </p>
           )}
         </div>
@@ -212,7 +212,7 @@ export function CompanyHome() {
             <p>{company.email}</p>
           </div>
           <div className="text-sm text-blue-100">
-            <p>Staff login: header se Admin, Sales ya Accountant choose karo.</p>
+            <p>Staff login: use Login in the header and choose Admin, Sales or Accountant.</p>
             <p className="mt-4 text-xs text-blue-200">© {new Date().getFullYear()} {company.company_name}</p>
           </div>
         </div>

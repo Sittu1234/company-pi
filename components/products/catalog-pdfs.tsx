@@ -61,7 +61,7 @@ export function CatalogPdfs({ canUpload }: { canUpload: boolean }) {
         <form onSubmit={onUpload} className="grid gap-3 rounded-2xl bg-white p-5 shadow-card md:grid-cols-4">
           <div className="md:col-span-4">
             <p className="font-bold text-navy">Sales catalog PDFs</p>
-            <p className="text-xs text-slate-500">Jo PDF yahan upload hoga, wahi sales team ke Product Catalog mein dikhega.</p>
+            <p className="text-xs text-slate-500">PDFs uploaded here appear in the sales team Product Catalog.</p>
           </div>
           <div>
             <Label>Title</Label>
@@ -118,8 +118,8 @@ export function CatalogPdfs({ canUpload }: { canUpload: boolean }) {
       {!rows.length && (
         <div className="rounded-2xl bg-white p-10 text-center text-slate-400 shadow-card">
           {canUpload
-            ? "Abhi koi catalog PDF nahi hai. PDF upload karo — sales ko wahi dikhega."
-            : "Admin ne abhi koi catalog PDF nahi dala. PDF aane ke baad yahan dikhega."}
+            ? "No catalog PDF yet. Upload a PDF — the sales team will see it here."
+            : "Admin has not uploaded a catalog PDF yet. It will appear here once added."}
         </div>
       )}
     </div>
