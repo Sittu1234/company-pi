@@ -19,6 +19,10 @@ export default function InvoiceDetailPage() {
   const [inv, setInv] = useState<Invoice | null>(null);
   const [emailTo, setEmailTo] = useState("");
   const [message, setMessage] = useState("");
+  const [taxNo, setTaxNo] = useState("");
+  const [taxDate, setTaxDate] = useState("");
+  const [showConvert, setShowConvert] = useState(false);
+  const [savingTax, setSavingTax] = useState(false);
   const role = getStoredUser()?.role;
   const canWrite = canWriteInvoices(role);
 
@@ -26,6 +30,8 @@ export default function InvoiceDetailPage() {
     api<Invoice>(`/api/invoices/${id}/`).then((d) => {
       setInv(d);
       setEmailTo(d.customer_detail?.email || "");
+      setTaxNo(d.tax_invoice_number || "");
+      setTaxDate(d.tax_invoice_date || "");
     });
   }
 
@@ -59,14 +65,59 @@ export default function InvoiceDetailPage() {
   }
 
   async function convertTax() {
-    if (!confirm("Is PI ready? Convert to Tax Invoice? Number 004 se start hoga.")) return;
+    const number = taxNo.trim();
+    if (!number) {
+      toast.error("Tax invoice number likho");
+      return;
+    }
+    setSavingTax(true);
     try {
-      const saved = await api<Invoice>(`/api/invoices/${id}/convert_tax/`, { method: "POST" });
-      toast.success(`Tax Invoice ${saved.tax_invoice_number} ban gaya`);
+      const saved = await api<Invoice>(`/api/invoices/${id}/convert_tax/`, {
+        method: "POST",
+        body: JSON.stringify({ tax_invoice_number: number, tax_invoice_date: taxDate || undefined }),
+      });
+      toast.success(`Tax Invoice ${saved.tax_invoice_number} save ho gaya`);
+      setShowConvert(false);
       load();
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Convert failed");
+    } finally {
+      setSavingTax(false);
     }
+  }
+
+  async function saveTaxNumber() {
+    const number = taxNo.trim();
+    if (!number) {
+      toast.error("Tax invoice number likho");
+      return;
+    }
+    setSavingTax(true);
+    try {
+      await api<Invoice>(`/api/invoices/${id}/`, {
+        method: "PATCH",
+        body: JSON.stringify({ tax_invoice_number: number, tax_invoice_date: taxDate || null }),
+      });
+      toast.success("Tax invoice number update ho gaya");
+      load();
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Update failed");
+    } finally {
+      setSavingTax(false);
+    }
+  }
+
+  async function openConvert() {
+    setShowConvert(true);
+    if (!taxNo) {
+      try {
+        const d = await api<{ tax_invoice_number: string }>("/api/invoices/next_tax_number/");
+        setTaxNo(d.tax_invoice_number);
+      } catch {
+        setTaxNo("INV-2026-0004");
+      }
+    }
+    if (!taxDate) setTaxDate(new Date().toISOString().slice(0, 10));
   }
 
   const hasTax = Boolean(inv.tax_invoice_number);
@@ -109,7 +160,7 @@ export default function InvoiceDetailPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           {canWrite && canConvert && (
-            <Button onClick={convertTax}>
+            <Button onClick={openConvert}>
               <Receipt size={16} /> Convert to Tax Invoice
             </Button>
           )}
@@ -149,6 +200,44 @@ export default function InvoiceDetailPage() {
           )}
         </div>
       </div>
+
+      {canWrite && (showConvert || hasTax) && (
+        <div className="rounded-2xl border border-electric/30 bg-white p-5 shadow-card">
+          <h3 className="font-extrabold text-navy">{hasTax ? "Customise tax invoice number" : "Tax invoice number"}</h3>
+          <p className="mt-1 text-sm text-slate-500">
+            Number khud likho / change karo. Suggested format: INV-2026-0004 — koi bhi series use kar sakte ho.
+          </p>
+          <div className="mt-4 flex flex-wrap items-end gap-3">
+            <div className="min-w-[220px] flex-1">
+              <Label>Tax Invoice Number *</Label>
+              <Input
+                value={taxNo}
+                onChange={(e) => setTaxNo(e.target.value)}
+                placeholder="INV-2026-0004"
+                className="font-semibold"
+              />
+            </div>
+            <div>
+              <Label>Tax Invoice Date</Label>
+              <Input type="date" value={taxDate} onChange={(e) => setTaxDate(e.target.value)} />
+            </div>
+            {hasTax ? (
+              <Button type="button" onClick={saveTaxNumber} disabled={savingTax}>
+                {savingTax ? "Saving…" : "Update number"}
+              </Button>
+            ) : (
+              <>
+                <Button type="button" onClick={convertTax} disabled={savingTax}>
+                  {savingTax ? "Saving…" : "Convert"}
+                </Button>
+                <Button type="button" variant="outline" onClick={() => setShowConvert(false)}>
+                  Cancel
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="rounded-2xl bg-white p-5 shadow-card lg:col-span-2">

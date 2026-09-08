@@ -64,6 +64,8 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
   const [piKind, setPiKind] = useState<PiKind | "">("");
   const [termTemplates, setTermTemplates] = useState<Record<string, string>>({});
   const [lines, setLines] = useState<Line[]>([emptyLine()]);
+  const [taxInvoiceNumber, setTaxInvoiceNumber] = useState("");
+  const [taxInvoiceDate, setTaxInvoiceDate] = useState("");
 
   const customer = customers.find((c) => String(c.id) === customerId);
 
@@ -100,6 +102,8 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
         setNotes(inv.notes || "");
         setTerms(inv.terms || "");
         setPiKind((inv.pi_kind as PiKind) || "battery");
+        setTaxInvoiceNumber(inv.tax_invoice_number || "");
+        setTaxInvoiceDate(inv.tax_invoice_date || "");
         setLines(
           inv.items.map((i) => ({
             product: i.product || "",
@@ -182,6 +186,8 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
       notes,
       terms,
       pi_kind: piKind,
+      tax_invoice_number: taxInvoiceNumber.trim() || null,
+      tax_invoice_date: taxInvoiceDate || null,
       items_data: lines
         .filter((l) => l.product_name || l.product)
         .map((l) => ({
@@ -241,6 +247,23 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
             <option value="cancelled">Cancelled</option>
           </Select>
         </div>
+        {invoiceId && (
+          <>
+            <div>
+              <Label>Tax Invoice Number</Label>
+              <Input
+                value={taxInvoiceNumber}
+                onChange={(e) => setTaxInvoiceNumber(e.target.value)}
+                placeholder="INV-2026-0004"
+                className="font-semibold"
+              />
+            </div>
+            <div>
+              <Label>Tax Invoice Date</Label>
+              <Input type="date" value={taxInvoiceDate} onChange={(e) => setTaxInvoiceDate(e.target.value)} />
+            </div>
+          </>
+        )}
         <div className="md:col-span-2">
           <Label>Dealer *</Label>
           <Select value={customerId} onChange={(e) => setCustomerId(e.target.value)} required>
