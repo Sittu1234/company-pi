@@ -147,6 +147,54 @@ export type CompanyEvent = {
   is_active: boolean;
 };
 
+export type PublicHighlight = {
+  title: string;
+  body: string;
+  image: string;
+};
+
+export type PublicPageContent = {
+  id?: number;
+  hero_kicker: string;
+  hero_title: string;
+  hero_body: string;
+  cta_primary: string;
+  cta_secondary: string;
+  hero_image: string;
+  about_kicker: string;
+  about_title: string;
+  about_body: string;
+  products_kicker: string;
+  products_title: string;
+  highlight_1_title: string;
+  highlight_1_body: string;
+  highlight_1_image: string;
+  highlight_2_title: string;
+  highlight_2_body: string;
+  highlight_2_image: string;
+  highlight_3_title: string;
+  highlight_3_body: string;
+  highlight_3_image: string;
+  careers_kicker: string;
+  careers_title: string;
+  careers_body: string;
+  careers_email: string;
+  highlights?: PublicHighlight[];
+};
+
+export type CareerOpening = {
+  id: number;
+  title: string;
+  department: string;
+  location: string;
+  employment_type: string;
+  description: string;
+  apply_email: string;
+  is_active: boolean;
+  sort_order: number;
+  created_at?: string;
+};
+
 export type PublicCompany = {
   company_name: string;
   tagline: string;
@@ -158,6 +206,8 @@ export type PublicCompany = {
   email: string;
   website: string;
   gst_number: string;
+  page?: PublicPageContent;
+  careers?: CareerOpening[];
 };
 
 export type Paginated<T> = {
