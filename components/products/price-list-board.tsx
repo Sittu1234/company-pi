@@ -48,7 +48,7 @@ export function PriceListBoard({ heading = true }: { heading?: boolean }) {
       lines.push("");
     }
     lines.push(data.note);
-    lines.push("Call: 9289975452");
+    lines.push("Call: 9289975453");
     return lines.join("\n");
   }, [data]);
 
