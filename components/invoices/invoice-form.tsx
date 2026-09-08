@@ -236,6 +236,7 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
             <option value="draft">Draft</option>
             <option value="sent">Sent</option>
             <option value="accepted">Accepted</option>
+            <option value="invoiced">Tax Invoice</option>
             <option value="expired">Expired</option>
             <option value="cancelled">Cancelled</option>
           </Select>

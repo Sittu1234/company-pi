@@ -3,12 +3,12 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Download, Mail, MessageCircle, Pencil, Printer, Trash2 } from "lucide-react";
+import { Download, Mail, MessageCircle, Pencil, Printer, Receipt, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Textarea } from "@/components/ui/input";
-import { api, downloadFile, openPdf } from "@/lib/api";
+import { ApiError, api, downloadFile, openPdf } from "@/lib/api";
 import { canManageUsers, canWriteInvoices, getStoredUser } from "@/lib/auth";
 import { formatDate, formatDateTime, formatINR } from "@/lib/utils";
 import type { Invoice } from "@/lib/types";
@@ -58,14 +58,39 @@ export default function InvoiceDetailPage() {
     router.push("/invoices");
   }
 
+  async function convertTax() {
+    if (!confirm("Is PI ready? Convert to Tax Invoice? Number 004 se start hoga.")) return;
+    try {
+      const saved = await api<Invoice>(`/api/invoices/${id}/convert_tax/`, { method: "POST" });
+      toast.success(`Tax Invoice ${saved.tax_invoice_number} ban gaya`);
+      load();
+    } catch (err) {
+      toast.error(err instanceof ApiError ? err.message : "Convert failed");
+    }
+  }
+
+  const hasTax = Boolean(inv.tax_invoice_number);
+  const canConvert =
+    inv.can_convert_tax ??
+    (!hasTax &&
+      inv.items.length > 0 &&
+      inv.status !== "cancelled" &&
+      inv.status !== "expired");
+
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-electric">Proforma Invoice</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-electric">
+            {hasTax ? "Proforma Invoice · Tax Invoice" : "Proforma Invoice"}
+          </p>
           <h1 className="text-2xl font-extrabold text-navy">{inv.pi_number}</h1>
+          {hasTax && (
+            <p className="text-lg font-extrabold text-electric">{inv.tax_invoice_number}</p>
+          )}
           <p className="text-sm text-slate-500">
             {formatDate(inv.pi_date)} · Valid till {formatDate(inv.valid_till)}
+            {hasTax && inv.tax_invoice_date ? ` · Tax invoice ${formatDate(inv.tax_invoice_date)}` : ""}
           </p>
           {!canWrite && (
             <p className="mt-1 text-xs font-semibold text-amber-700">
@@ -83,6 +108,24 @@ export default function InvoiceDetailPage() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {canWrite && canConvert && (
+            <Button onClick={convertTax}>
+              <Receipt size={16} /> Convert to Tax Invoice
+            </Button>
+          )}
+          {hasTax && (
+            <>
+              <Button
+                variant="navy"
+                onClick={() => downloadFile(`/api/invoices/${id}/pdf/?kind=tax`, `${inv.tax_invoice_number}.pdf`)}
+              >
+                <Download size={16} /> Tax Invoice PDF
+              </Button>
+              <Button variant="outline" onClick={() => openPdf(`/api/invoices/${id}/pdf/?kind=tax&inline=1`)}>
+                <Printer size={16} /> Print Tax Invoice
+              </Button>
+            </>
+          )}
           <Button variant="outline" onClick={() => downloadFile(`/api/invoices/${id}/pdf/`, `${inv.pi_number}.pdf`)}>
             <Download size={16} /> Download PDF
           </Button>
@@ -111,7 +154,7 @@ export default function InvoiceDetailPage() {
         <div className="rounded-2xl bg-white p-5 shadow-card lg:col-span-2">
           <div className="flex items-center justify-between">
             <h2 className="font-bold">Dealer</h2>
-            <Badge>{inv.status}</Badge>
+            <Badge tone={inv.status === "invoiced" ? "green" : undefined}>{inv.status}</Badge>
           </div>
           <p className="mt-2 font-semibold">{c?.customer_name}</p>
           <p className="text-sm text-slate-600">{c?.company_name}</p>

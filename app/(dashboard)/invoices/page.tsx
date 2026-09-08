@@ -15,6 +15,7 @@ const tones: Record<string, "slate" | "blue" | "green" | "amber" | "rose"> = {
   draft: "slate",
   sent: "blue",
   accepted: "green",
+  invoiced: "green",
   expired: "amber",
   cancelled: "rose",
 };
@@ -77,6 +78,7 @@ export default function InvoicesPage() {
           <option value="draft">Draft</option>
           <option value="sent">Sent</option>
           <option value="accepted">Accepted</option>
+          <option value="invoiced">Tax Invoice</option>
           <option value="expired">Expired</option>
           <option value="cancelled">Cancelled</option>
         </Select>
@@ -99,6 +101,7 @@ export default function InvoicesPage() {
           <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
             <tr>
               <th className="px-4 py-3">PI Number</th>
+              <th className="px-4 py-3">Tax Invoice</th>
               <th className="px-4 py-3">Dealer</th>
               <th className="px-4 py-3">Created by</th>
               <th className="px-4 py-3">Created at</th>
@@ -114,6 +117,15 @@ export default function InvoicesPage() {
                   <Link className="text-electric" href={`/invoices/${inv.id}`}>
                     {inv.pi_number}
                   </Link>
+                </td>
+                <td className="px-4 py-3 font-semibold">
+                  {inv.tax_invoice_number ? (
+                    <Link className="text-navy" href={`/invoices/${inv.id}`}>
+                      {inv.tax_invoice_number}
+                    </Link>
+                  ) : (
+                    <span className="text-slate-400">—</span>
+                  )}
                 </td>
                 <td className="px-4 py-3">{inv.customer_detail?.customer_name}</td>
                 <td className="px-4 py-3">

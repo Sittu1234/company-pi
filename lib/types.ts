@@ -94,7 +94,7 @@ export type Invoice = {
   valid_till: string | null;
   customer: number;
   customer_detail?: Customer;
-  status: "draft" | "sent" | "accepted" | "expired" | "cancelled";
+  status: "draft" | "sent" | "accepted" | "invoiced" | "expired" | "cancelled";
   freight_charges: number | string;
   packing_charges: number | string;
   discount: number | string;
@@ -115,6 +115,10 @@ export type Invoice = {
   last_sent_at?: string | null;
   last_sent_via?: string;
   last_sent_to?: string;
+  tax_invoice_number?: string | null;
+  tax_invoice_date?: string | null;
+  converted_at?: string | null;
+  can_convert_tax?: boolean;
   dispatches?: InvoiceDispatch[];
   items: InvoiceItem[];
 };

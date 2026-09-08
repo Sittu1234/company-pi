@@ -64,6 +64,7 @@ const statusTone: Record<string, "slate" | "blue" | "green" | "amber" | "rose"> 
   draft: "slate",
   sent: "blue",
   accepted: "green",
+  invoiced: "green",
   expired: "amber",
   cancelled: "rose",
 };
