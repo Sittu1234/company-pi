@@ -1,19 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import {
-  BatteryCharging,
-  Building2,
-  Cake,
-  CalendarDays,
-  Landmark,
-  MapPin,
-  PartyPopper,
-  Phone,
-  Sparkles,
-  Umbrella,
-  Zap,
-} from "lucide-react";
+import { Building2, Cake, CalendarDays, MapPin, PartyPopper, Phone, Sparkles, Umbrella } from "lucide-react";
 import { api } from "@/lib/api";
 import { formatDate } from "@/lib/utils";
 import type { CompanyEvent, CompanyEventKind, PublicCompany } from "@/lib/types";
@@ -42,6 +30,24 @@ const KIND_META: Record<
   holiday: { label: "Holidays", icon: Umbrella, tone: "bg-emerald-50 text-emerald-800", chip: "border-emerald-400 text-emerald-800" },
 };
 
+const PRODUCTS = [
+  {
+    title: "EV Scooter",
+    body: "Models, battery options and RTO-ready quotations from one desk.",
+    image: "/home/ev-scooter.jpg",
+  },
+  {
+    title: "Lithium packs",
+    body: "Voltage, Ah, BMS and connector as per the signed specification.",
+    image: "/home/lithium-battery.jpg",
+  },
+  {
+    title: "LED / inverter",
+    body: "Stock range with HSN, GST and dealer price list support.",
+    image: "/home/led-battery.jpg",
+  },
+];
+
 export function CompanyHome() {
   const [company, setCompany] = useState<PublicCompany>(FALLBACK_COMPANY);
   const [events, setEvents] = useState<CompanyEvent[]>([]);
@@ -63,94 +69,137 @@ export function CompanyHome() {
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <div className="min-h-screen bg-[#F6F3EC] text-navy">
+    <div className="min-h-screen bg-[#F4EFE4] text-navy">
       <SiteHeader />
 
-      <section className="erp-gradient relative overflow-hidden text-white">
-        <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[#C9A227]/20 blur-3xl" />
-        <div className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:grid-cols-2 md:px-6 md:py-24">
+      <section className="relative min-h-[78vh] overflow-hidden text-white">
+        <img
+          src="/home/hero-showroom.jpg"
+          alt="Kalpna Traders showroom"
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#061526]/95 via-[#0A2540]/82 to-[#0A2540]/35" />
+        <div className="absolute -right-10 top-10 h-64 w-64 rounded-full bg-[#C9A227]/20 blur-3xl" />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:grid-cols-[1.05fr_0.95fr] md:px-6 md:py-24">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-amber-300">National channel partner · SPARS Electric</p>
-            <h1 className="mt-3 text-4xl font-extrabold leading-tight md:text-5xl">{company.company_name}</h1>
-            <p className="mt-3 text-lg text-blue-100">{company.tagline || "TRUST • QUALITY • GROWTH"}</p>
-            <p className="mt-5 max-w-lg text-blue-100">
-              EV scooters, lithium battery packs and LED batteries — quotations, tax invoices and dealer support from one team in Noida.
+            <div className="mb-6 inline-flex items-center gap-4 rounded-3xl bg-white p-2.5 pr-5 shadow-xl ring-1 ring-[#C9A227]/40">
+              <img src="/kalpna-header.png" alt="Kalpna Traders logo" className="h-28 w-28 rounded-2xl object-contain" />
+              <div>
+                <p className="text-lg font-extrabold tracking-wide text-navy">Kalpna Traders</p>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#A8841C]">
+                  Trust · Quality · Growth
+                </p>
+              </div>
+            </div>
+            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#E8C547]">
+              National channel partner · SPARS Electric
+            </p>
+            <h1 className="mt-3 text-4xl font-extrabold leading-[1.1] md:text-6xl">{company.company_name}</h1>
+            <p className="mt-4 max-w-xl text-base text-blue-100 md:text-lg">
+              EV scooters, lithium packs and LED batteries — quotations, tax invoices and dealer support from one Noida team.
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
-              <a href="#calendar" className="inline-flex h-11 items-center rounded-lg bg-[#C9A227] px-5 text-sm font-extrabold text-navy">
+              <a
+                href="#calendar"
+                className="inline-flex h-12 items-center rounded-xl bg-[#C9A227] px-6 text-sm font-extrabold text-navy shadow-lg hover:bg-[#E8C547]"
+              >
                 Company calendar
               </a>
-              <a href="#contact" className="inline-flex h-11 items-center rounded-lg border border-white/30 px-5 text-sm font-semibold">
+              <a
+                href="#contact"
+                className="inline-flex h-12 items-center rounded-xl border border-white/40 bg-white/10 px-6 text-sm font-semibold backdrop-blur hover:bg-white/20"
+              >
                 Contact HR / office
               </a>
             </div>
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
-            {[
-              { icon: Zap, title: "EV Scooter", text: "Range, RTO-ready quotes" },
-              { icon: BatteryCharging, title: "Lithium Battery", text: "Custom packs & BMS" },
-              { icon: Sparkles, title: "LED Battery", text: "Inverter / solar range" },
-              { icon: Landmark, title: "GST ready", text: "PI to tax invoice" },
-            ].map((c) => (
-              <div key={c.title} className="rounded-2xl border border-white/15 bg-white/10 p-5 backdrop-blur">
-                <c.icon className="text-amber-300" size={22} />
-                <p className="mt-3 font-extrabold">{c.title}</p>
-                <p className="text-sm text-blue-100">{c.text}</p>
-              </div>
-            ))}
+          <div className="grid grid-cols-2 gap-3">
+            <img
+              src="/home/ev-scooter.jpg"
+              alt="EV scooter"
+              className="h-44 w-full rounded-3xl object-cover shadow-2xl ring-1 ring-white/20 md:h-56"
+            />
+            <img
+              src="/home/lithium-battery.jpg"
+              alt="Lithium battery packs"
+              className="mt-8 h-44 w-full rounded-3xl object-cover shadow-2xl ring-1 ring-white/20 md:h-56"
+            />
+            <img
+              src="/home/led-battery.jpg"
+              alt="LED and inverter batteries"
+              className="col-span-2 h-36 w-full rounded-3xl object-cover shadow-2xl ring-1 ring-white/20 md:h-44"
+            />
           </div>
         </div>
       </section>
 
-      <section id="about" className="mx-auto max-w-6xl px-4 py-16 md:px-6">
-        <div className="grid gap-8 md:grid-cols-2">
+      <section id="about" className="mx-auto max-w-6xl px-4 py-20 md:px-6">
+        <div className="grid items-center gap-10 md:grid-cols-2">
+          <div className="relative">
+            <img
+              src="/home/hero-showroom.jpg"
+              alt="Dealership floor"
+              className="h-[380px] w-full rounded-[2rem] object-cover shadow-2xl"
+            />
+            <div className="absolute -bottom-5 -right-3 rounded-2xl bg-white p-4 shadow-card md:right-6">
+              <p className="text-[11px] font-bold uppercase tracking-wide text-slate-400">Noida desk</p>
+              <p className="text-sm font-extrabold text-navy">EV · Lithium · LED</p>
+            </div>
+          </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-electric">About the company</p>
-            <h2 className="mt-2 text-3xl font-extrabold">Trading desk built around people and products</h2>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-electric">About the company</p>
+            <h2 className="mt-3 text-3xl font-extrabold leading-tight md:text-4xl">A trading house built on people and products</h2>
             <p className="mt-4 text-slate-600">
-              Kalpna Traders is the commercial face of SPARS Electric in North India. The office calendar below is what the team lives by — dealer meets, birthdays, festivals and public holidays.
+              Kalpna Traders is the commercial face of SPARS Electric in North India. Dealers get GST-ready quotations, a live price list and a team that shows up for launches, birthdays and festivals alike.
             </p>
-          </div>
-          <div className="rounded-3xl bg-white p-6 shadow-card">
-            <p className="flex items-start gap-2 text-sm text-slate-600">
-              <Building2 size={16} className="mt-0.5 text-electric" /> GSTIN {company.gst_number || "—"}
-            </p>
-            <p className="mt-3 flex items-start gap-2 text-sm text-slate-600">
-              <MapPin size={16} className="mt-0.5 text-electric" /> {addr || "Noida"}
-            </p>
-            <p className="mt-3 flex items-start gap-2 text-sm text-slate-600">
-              <Phone size={16} className="mt-0.5 text-electric" /> {company.phone}
-            </p>
+            <div className="mt-6 space-y-3 rounded-3xl bg-white p-6 shadow-card">
+              <p className="flex items-start gap-2 text-sm text-slate-600">
+                <Building2 size={16} className="mt-0.5 text-[#C9A227]" /> GSTIN {company.gst_number || "—"}
+              </p>
+              <p className="flex items-start gap-2 text-sm text-slate-600">
+                <MapPin size={16} className="mt-0.5 text-[#C9A227]" /> {addr || "Noida"}
+              </p>
+              <p className="flex items-start gap-2 text-sm text-slate-600">
+                <Phone size={16} className="mt-0.5 text-[#C9A227]" /> {company.phone}
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      <section id="products" className="bg-white py-16">
+      <section id="products" className="bg-[#0A2540] py-20 text-white">
         <div className="mx-auto max-w-6xl px-4 md:px-6">
-          <h2 className="text-3xl font-extrabold">What we quote every day</h2>
-          <div className="mt-8 grid gap-4 md:grid-cols-3">
-            {[
-              { title: "EV Scooter", body: "Models, battery options and RTO notes on one quotation." },
-              { title: "Lithium packs", body: "Voltage, Ah, BMS and connector as per signed spec." },
-              { title: "LED / inverter", body: "Stock range with HSN, GST and dealer price list." },
-            ].map((p) => (
-              <div key={p.title} className="rounded-2xl border border-slate-100 bg-[#F6F3EC] p-6">
-                <p className="text-lg font-extrabold">{p.title}</p>
-                <p className="mt-2 text-sm text-slate-600">{p.body}</p>
-              </div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#E8C547]">Product range</p>
+          <h2 className="mt-2 text-3xl font-extrabold md:text-4xl">What we quote every day</h2>
+          <div className="mt-10 grid gap-5 md:grid-cols-3">
+            {PRODUCTS.map((p) => (
+              <article key={p.title} className="group overflow-hidden rounded-[1.75rem] bg-white/5 ring-1 ring-white/10">
+                <div className="relative h-52 overflow-hidden">
+                  <img
+                    src={p.image}
+                    alt={p.title}
+                    className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0A2540] via-transparent to-transparent" />
+                </div>
+                <div className="p-6">
+                  <h3 className="text-xl font-extrabold">{p.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-blue-100">{p.body}</p>
+                </div>
+              </article>
             ))}
           </div>
         </div>
       </section>
 
-      <section id="calendar" className="mx-auto max-w-6xl px-4 py-16 md:px-6">
+      <section id="calendar" className="mx-auto max-w-6xl px-4 py-20 md:px-6">
         <div className="flex flex-wrap items-end justify-between gap-3">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-electric">Company life</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-electric">Company life</p>
             <h2 className="mt-2 text-3xl font-extrabold">Events, birthdays, festivals &amp; holidays</h2>
-            <p className="mt-2 text-slate-600">What is happening in the office — meetings, birthdays, festivals and holidays — all listed here.</p>
+            <p className="mt-2 text-slate-600">Meetings, celebrations, festivals and holidays — listed for the whole team.</p>
           </div>
-          <CalendarDays className="text-electric" />
+          <CalendarDays className="text-[#C9A227]" />
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
@@ -200,11 +249,18 @@ export function CompanyHome() {
         </div>
       </section>
 
-      <footer id="contact" className="erp-gradient text-white">
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-3 md:px-6">
-          <div>
-            <p className="text-lg font-extrabold">{company.company_name}</p>
-            <p className="mt-1 text-sm text-amber-300">{company.tagline}</p>
+      <footer id="contact" className="relative overflow-hidden bg-[#061526] text-white">
+        <img src="/home/hero-showroom.jpg" alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />
+        <div className="absolute inset-0 bg-[#061526]/80" />
+        <div className="relative mx-auto grid max-w-6xl gap-8 px-4 py-14 md:grid-cols-3 md:px-6">
+          <div className="flex items-start gap-3">
+            <span className="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white p-1">
+              <img src="/kalpna-header.png" alt="" className="h-full w-full object-contain" />
+            </span>
+            <div>
+              <p className="text-lg font-extrabold">{company.company_name}</p>
+              <p className="mt-1 text-sm text-[#E8C547]">{company.tagline}</p>
+            </div>
           </div>
           <div className="text-sm text-blue-100">
             <p>{addr}</p>
@@ -213,7 +269,9 @@ export function CompanyHome() {
           </div>
           <div className="text-sm text-blue-100">
             <p>Staff login: use Login in the header and choose Admin, Sales or Accountant.</p>
-            <p className="mt-4 text-xs text-blue-200">© {new Date().getFullYear()} {company.company_name}</p>
+            <p className="mt-4 text-xs text-blue-200">
+              © {new Date().getFullYear()} {company.company_name}
+            </p>
           </div>
         </div>
       </footer>
