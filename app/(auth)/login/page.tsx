@@ -1,20 +1,36 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input, Label } from "@/components/ui/input";
+import { Input, Label, Select } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { setSession } from "@/lib/auth";
-import type { User } from "@/lib/types";
+import type { Role, User } from "@/lib/types";
 
-export default function LoginPage() {
+const ROLE_OPTIONS: { value: Role; label: string; id: string; password: string }[] = [
+  { value: "admin", label: "Admin", id: "KT001", password: "Admin@123" },
+  { value: "sales", label: "Sales", id: "KT002", password: "Sales@123" },
+  { value: "accountant", label: "Accountant", id: "KT003", password: "Accounts@123" },
+];
+
+function LoginInner() {
   const router = useRouter();
-  const [email, setEmail] = useState("wendy.h@example.net");
-  const [password, setPassword] = useState("Admin@123");
+  const sp = useSearchParams();
+  const initial = (sp.get("role") || "admin") as Role;
+  const [role, setRole] = useState<Role>(ROLE_OPTIONS.some((r) => r.value === initial) ? initial : "admin");
+  const preset = useMemo(() => ROLE_OPTIONS.find((r) => r.value === role) || ROLE_OPTIONS[0], [role]);
+  const [email, setEmail] = useState(preset.id);
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+
+  function changeRole(next: Role) {
+    setRole(next);
+    const p = ROLE_OPTIONS.find((r) => r.value === next);
+    if (p) setEmail(p.id);
+  }
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
@@ -23,7 +39,7 @@ export default function LoginPage() {
       const data = await api<{ access: string; refresh: string; user: User }>("/api/auth/login/", {
         method: "POST",
         auth: false,
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, role }),
       });
       setSession(data.access, data.refresh, data.user);
       toast.success(`Welcome back, ${data.user.name}`);
@@ -38,7 +54,7 @@ export default function LoginPage() {
   return (
     <div className="grid min-h-screen lg:grid-cols-2">
       <div className="erp-gradient relative hidden flex-col justify-between p-10 text-white lg:flex">
-        <div className="flex items-center gap-4">
+        <Link href="/" className="flex items-center gap-4">
           <img
             src="/kalpna-logo.jpg"
             alt="Kalpna Traders"
@@ -49,23 +65,33 @@ export default function LoginPage() {
             <p className="text-sm text-blue-100">SPARS ERP · Proforma Invoice System</p>
             <p className="mt-1 text-xs tracking-wide text-amber-200">TRUST · QUALITY · GROWTH</p>
           </div>
-        </div>
+        </Link>
         <div>
           <h1 className="max-w-md text-4xl font-extrabold leading-tight">
-            Professional PI workflow for manufacturing &amp; trading.
+            {preset.label} login
           </h1>
           <p className="mt-4 max-w-md text-blue-100">
-            Customers, products, GST-ready quotations, PDF, WhatsApp and email — in one modern ERP
-            dashboard.
+            Pehle role select karo — Admin, Sales ya Accountant — phir Employee ID se sign in karo.
           </p>
         </div>
         <p className="text-xs text-blue-200">© {new Date().getFullYear()} Kalpna Traders</p>
       </div>
       <div className="flex items-center justify-center bg-slate-50 p-6">
         <form onSubmit={onSubmit} className="w-full max-w-md rounded-2xl bg-white p-8 shadow-card">
-          <h2 className="text-2xl font-extrabold text-navy">Sign in</h2>
-          <p className="mt-1 text-sm text-slate-500">Login with Employee ID or email</p>
+          <p className="text-xs font-semibold uppercase tracking-wide text-electric">Staff login</p>
+          <h2 className="mt-1 text-2xl font-extrabold text-navy">Sign in</h2>
+          <p className="mt-1 text-sm text-slate-500">Kaun login kar raha hai — pehle select karo</p>
           <div className="mt-6">
+            <Label>Login as</Label>
+            <Select value={role} onChange={(e) => changeRole(e.target.value as Role)}>
+              {ROLE_OPTIONS.map((r) => (
+                <option key={r.value} value={r.value}>
+                  {r.label}
+                </option>
+              ))}
+            </Select>
+          </div>
+          <div className="mt-4">
             <Label>Employee ID or Email</Label>
             <Input value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="KT001 or email" />
           </div>
@@ -79,16 +105,21 @@ export default function LoginPage() {
             </Link>
           </div>
           <Button className="mt-6 w-full" disabled={loading}>
-            {loading ? "Signing in…" : "Sign in"}
+            {loading ? "Signing in…" : `Sign in as ${preset.label}`}
           </Button>
-          <div className="mt-6 rounded-xl bg-slate-50 p-3 text-xs text-slate-600">
-            <p className="font-semibold text-navy">Demo logins (ID or email)</p>
-            <p>Admin — KT001 / Admin@123</p>
-            <p>Sales — KT002 / Sales@123</p>
-            <p>Accounts — KT003 / Accounts@123</p>
-          </div>
+          <Link href="/" className="mt-4 block text-center text-xs font-semibold text-slate-500 hover:text-navy">
+            ← Back to company page
+          </Link>
         </form>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<p className="p-8 text-slate-500">Loading login…</p>}>
+      <LoginInner />
+    </Suspense>
   );
 }

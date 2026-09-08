@@ -7,6 +7,7 @@ import {
   BarChart3,
   Building2,
   CalendarCheck,
+  CalendarDays,
   FileText,
   IndianRupee,
   LayoutDashboard,
@@ -40,6 +41,7 @@ const NAV: {
   { href: "/invoices", label: "Proforma Invoices", salesLabel: "My PIs", accountantLabel: "All PIs", icon: FileText, roles: ["admin", "sales", "accountant"] },
   { href: "/team", label: "Team Manage", icon: UserCog, roles: ["admin"] },
   { href: "/attendance", label: "Attendance", salesLabel: "My Attendance", accountantLabel: "My Attendance", icon: CalendarCheck, roles: ["admin", "sales", "accountant"] },
+  { href: "/calendar", label: "Company Calendar", icon: CalendarDays, roles: ["admin"] },
   { href: "/reports", label: "Reports", salesLabel: "My Reports", accountantLabel: "Accounts Reports", icon: BarChart3, roles: ["admin", "sales", "accountant"] },
   { href: "/settings", label: "Company Settings", icon: Settings, roles: ["admin"] },
   { href: "/activity", label: "Activity Logs", icon: Activity, roles: ["admin"] },
@@ -127,7 +129,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg bg-white/15 py-2 text-xs font-semibold hover:bg-white/25"
             onClick={() => {
               clearSession();
-              router.replace("/login");
+              router.replace("/");
             }}
           >
             <LogOut size={14} /> Sign out

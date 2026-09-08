@@ -133,6 +133,33 @@ export type InvoiceDispatch = {
   notes?: string;
 };
 
+export type CompanyEventKind = "event" | "birthday" | "festival" | "holiday";
+
+export type CompanyEvent = {
+  id: number;
+  title: string;
+  kind: CompanyEventKind;
+  kind_label?: string;
+  date: string;
+  end_date?: string | null;
+  description: string;
+  is_public: boolean;
+  is_active: boolean;
+};
+
+export type PublicCompany = {
+  company_name: string;
+  tagline: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  phone: string;
+  email: string;
+  website: string;
+  gst_number: string;
+};
+
 export type Paginated<T> = {
   count: number;
   next: string | null;
