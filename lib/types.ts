@@ -117,6 +117,8 @@ export type Invoice = {
   last_sent_to?: string;
   tax_invoice_number?: string | null;
   tax_invoice_date?: string | null;
+  advance_received?: number | string;
+  balance_due?: number | string;
   converted_at?: string | null;
   can_convert_tax?: boolean;
   dispatches?: InvoiceDispatch[];

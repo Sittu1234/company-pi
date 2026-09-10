@@ -66,6 +66,7 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
   const [lines, setLines] = useState<Line[]>([emptyLine()]);
   const [taxInvoiceNumber, setTaxInvoiceNumber] = useState("");
   const [taxInvoiceDate, setTaxInvoiceDate] = useState("");
+  const [advanceReceived, setAdvanceReceived] = useState(0);
 
   const customer = customers.find((c) => String(c.id) === customerId);
 
@@ -104,6 +105,7 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
         setPiKind((inv.pi_kind as PiKind) || "battery");
         setTaxInvoiceNumber(inv.tax_invoice_number || "");
         setTaxInvoiceDate(inv.tax_invoice_date || "");
+        setAdvanceReceived(Number(inv.advance_received || 0));
         setLines(
           inv.items.map((i) => ({
             product: i.product || "",
@@ -188,6 +190,7 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
       pi_kind: piKind,
       tax_invoice_number: taxInvoiceNumber.trim() || null,
       tax_invoice_date: taxInvoiceDate || null,
+      advance_received: advanceReceived,
       items_data: lines
         .filter((l) => l.product_name || l.product)
         .map((l) => ({
@@ -261,6 +264,20 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
             <div>
               <Label>Tax Invoice Date</Label>
               <Input type="date" value={taxInvoiceDate} onChange={(e) => setTaxInvoiceDate(e.target.value)} />
+            </div>
+            <div>
+              <Label>Advance Received</Label>
+              <Input
+                type="number"
+                min={0}
+                step="0.01"
+                value={advanceReceived}
+                onChange={(e) => setAdvanceReceived(Number(e.target.value))}
+              />
+            </div>
+            <div>
+              <Label>Remaining</Label>
+              <Input value={formatINR(Math.max(0, totals.grand - advanceReceived))} readOnly className="bg-slate-50 font-semibold" />
             </div>
           </>
         )}
@@ -442,6 +459,12 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
               <span>Grand Total</span>
               <span>{formatINR(totals.grand)}</span>
             </div>
+            {taxInvoiceNumber ? (
+              <>
+                <Row label="Advance Received" value={formatINR(advanceReceived)} />
+                <Row label="Remaining" value={formatINR(Math.max(0, totals.grand - advanceReceived))} />
+              </>
+            ) : null}
           </div>
         </div>
       </div>

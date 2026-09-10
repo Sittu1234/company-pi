@@ -21,6 +21,7 @@ export default function InvoiceDetailPage() {
   const [message, setMessage] = useState("");
   const [taxNo, setTaxNo] = useState("");
   const [taxDate, setTaxDate] = useState("");
+  const [advance, setAdvance] = useState("0");
   const [showConvert, setShowConvert] = useState(false);
   const [savingTax, setSavingTax] = useState(false);
   const role = getStoredUser()?.role;
@@ -32,6 +33,7 @@ export default function InvoiceDetailPage() {
       setEmailTo(d.customer_detail?.email || "");
       setTaxNo(d.tax_invoice_number || "");
       setTaxDate(d.tax_invoice_date || "");
+      setAdvance(String(d.advance_received ?? "0"));
     });
   }
 
@@ -70,11 +72,23 @@ export default function InvoiceDetailPage() {
       toast.error("Enter a tax invoice number");
       return;
     }
+    if (Number(advance || 0) < 0) {
+      toast.error("Advance cannot be negative");
+      return;
+    }
+    if (Number(advance || 0) > Number(inv?.grand_total || 0)) {
+      toast.error("Advance cannot be more than the invoice amount");
+      return;
+    }
     setSavingTax(true);
     try {
       const saved = await api<Invoice>(`/api/invoices/${id}/convert_tax/`, {
         method: "POST",
-        body: JSON.stringify({ tax_invoice_number: number, tax_invoice_date: taxDate || undefined }),
+        body: JSON.stringify({
+          tax_invoice_number: number,
+          tax_invoice_date: taxDate || undefined,
+          advance_received: Number(advance || 0),
+        }),
       });
       toast.success(`Tax Invoice ${saved.tax_invoice_number} saved`);
       setShowConvert(false);
@@ -96,9 +110,13 @@ export default function InvoiceDetailPage() {
     try {
       await api<Invoice>(`/api/invoices/${id}/`, {
         method: "PATCH",
-        body: JSON.stringify({ tax_invoice_number: number, tax_invoice_date: taxDate || null }),
+        body: JSON.stringify({
+          tax_invoice_number: number,
+          tax_invoice_date: taxDate || null,
+          advance_received: Number(advance || 0),
+        }),
       });
-      toast.success("Tax invoice number updated");
+      toast.success("Tax invoice updated");
       load();
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Update failed");
@@ -121,6 +139,8 @@ export default function InvoiceDetailPage() {
   }
 
   const hasTax = Boolean(inv.tax_invoice_number);
+  const invoiceAmount = Number(inv.grand_total || 0);
+  const remainingAmount = Math.max(0, invoiceAmount - Number(advance || 0));
   const canConvert =
     inv.can_convert_tax ??
     (!hasTax &&
@@ -203,10 +223,31 @@ export default function InvoiceDetailPage() {
 
       {canWrite && (showConvert || hasTax) && (
         <div className="rounded-2xl border border-electric/30 bg-white p-5 shadow-card">
-          <h3 className="font-extrabold text-navy">{hasTax ? "Customise tax invoice number" : "Tax invoice number"}</h3>
+          <h3 className="font-extrabold text-navy">{hasTax ? "Customise tax invoice" : "Convert to tax invoice"}</h3>
           <p className="mt-1 text-sm text-slate-500">
-            Enter or change the number. Suggested format: INV-2026-0004 — any series is allowed.
+            Enter the invoice number, then fill how much advance is received. Remaining is calculated automatically.
           </p>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            <div>
+              <Label>Invoice Amount</Label>
+              <Input value={formatINR(invoiceAmount)} readOnly className="bg-slate-50 font-semibold" />
+            </div>
+            <div>
+              <Label>Advance Received</Label>
+              <Input
+                type="number"
+                min={0}
+                max={invoiceAmount}
+                step="0.01"
+                value={advance}
+                onChange={(e) => setAdvance(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Remaining / Balance Due</Label>
+              <Input value={formatINR(remainingAmount)} readOnly className="bg-slate-50 font-semibold" />
+            </div>
+          </div>
           <div className="mt-4 flex flex-wrap items-end gap-3">
             <div className="min-w-[220px] flex-1">
               <Label>Tax Invoice Number *</Label>
@@ -223,7 +264,7 @@ export default function InvoiceDetailPage() {
             </div>
             {hasTax ? (
               <Button type="button" onClick={saveTaxNumber} disabled={savingTax}>
-                {savingTax ? "Saving…" : "Update number"}
+                {savingTax ? "Saving…" : "Update invoice"}
               </Button>
             ) : (
               <>
@@ -264,7 +305,13 @@ export default function InvoiceDetailPage() {
         </div>
         <div className="rounded-2xl bg-navy p-5 text-white shadow-card">
           <p className="text-sm text-blue-100">Grand Total</p>
-          <p className="text-3xl font-extrabold">{formatINR(Number(inv.grand_total))}</p>
+          <p className="text-3xl font-extrabold">{formatINR(invoiceAmount)}</p>
+          {hasTax && (
+            <div className="mt-3 space-y-1 text-sm text-blue-100">
+              <p>Advance received: <span className="font-semibold text-white">{formatINR(Number(inv.advance_received || 0))}</span></p>
+              <p>Remaining: <span className="font-semibold text-white">{formatINR(Number(inv.balance_due ?? remainingAmount))}</span></p>
+            </div>
+          )}
           <p className="mt-2 text-xs text-blue-200">{inv.is_interstate ? "IGST applied" : "CGST + SGST applied"}</p>
         </div>
       </div>
@@ -322,6 +369,14 @@ export default function InvoiceDetailPage() {
           <p>CGST: {formatINR(Number(inv.cgst_amount))}</p>
           <p>SGST: {formatINR(Number(inv.sgst_amount))}</p>
           <p>IGST: {formatINR(Number(inv.igst_amount))}</p>
+          {hasTax && (
+            <>
+              <p className="mt-3 font-semibold text-navy">Payment</p>
+              <p>Invoice amount: {formatINR(invoiceAmount)}</p>
+              <p>Advance received: {formatINR(Number(inv.advance_received || 0))}</p>
+              <p>Remaining: {formatINR(Number(inv.balance_due ?? remainingAmount))}</p>
+            </>
+          )}
           {inv.notes && <p className="mt-3 text-slate-500">Notes: {inv.notes}</p>}
         </div>
       </div>
