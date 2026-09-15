@@ -183,6 +183,11 @@ export default function InvoiceDetailPage() {
                 {inv.pi_kind === "ev_scooter" ? "EV Scooter" : inv.pi_kind === "both" ? "Battery + EV Scooter" : "Battery"}
               </span>
             ) : null}
+            {inv.include_proposal ? (
+              <span className="ml-2 rounded-full bg-navy/10 px-2 py-0.5 text-xs font-semibold text-navy">
+                Business proposal included
+              </span>
+            ) : null}
           </p>
         </div>
         <div className="flex flex-wrap gap-2">

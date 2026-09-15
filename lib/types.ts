@@ -102,6 +102,8 @@ export type Invoice = {
   discount: number | string;
   notes: string;
   terms: string;
+  include_proposal?: boolean;
+  proposal_note?: string;
   pi_kind?: "battery" | "ev_scooter" | "both" | "";
   subtotal: number | string;
   cgst_amount: number | string;

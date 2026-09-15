@@ -62,6 +62,8 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
   const [packing, setPacking] = useState(0);
   const [discountPercent, setDiscountPercent] = useState(0);
   const [notes, setNotes] = useState("");
+  const [includeProposal, setIncludeProposal] = useState(false);
+  const [proposalNote, setProposalNote] = useState("");
   const [terms, setTerms] = useState("");
   const [piKind, setPiKind] = useState<PiKind | "">("");
   const [termTemplates, setTermTemplates] = useState<Record<string, string>>({});
@@ -103,6 +105,8 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
         setPacking(Number(inv.packing_charges));
         setDiscountPercent(Number(inv.discount_percent || 0));
         setNotes(inv.notes || "");
+        setIncludeProposal(Boolean(inv.include_proposal));
+        setProposalNote(inv.proposal_note || "");
         setTerms(inv.terms || "");
         setPiKind((inv.pi_kind as PiKind) || "battery");
         setTaxInvoiceNumber(inv.tax_invoice_number || "");
@@ -193,6 +197,8 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
       packing_charges: packing,
       discount_percent: discountPercent,
       notes,
+      include_proposal: includeProposal,
+      proposal_note: proposalNote,
       terms,
       pi_kind: piKind,
       tax_invoice_number: taxInvoiceNumber.trim() || null,
@@ -465,6 +471,28 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
               placeholder="Battery included, charger free, special offer…"
             />
           </div>
+          <label className="flex items-start gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-3">
+            <input
+              type="checkbox"
+              className="mt-1 h-4 w-4"
+              checked={includeProposal}
+              onChange={(e) => setIncludeProposal(e.target.checked)}
+            />
+            <span>
+              <span className="block text-sm font-semibold text-navy">Include business proposal</span>
+              <span className="text-xs text-slate-500">Adds a proposal page with the quotation PDF for selected customers.</span>
+            </span>
+          </label>
+          {includeProposal && (
+            <div>
+              <Label>Extra proposal note (optional)</Label>
+              <Textarea
+                value={proposalNote}
+                onChange={(e) => setProposalNote(e.target.value)}
+                placeholder="Any extra commercial / supply note for this dealer…"
+              />
+            </div>
+          )}
         </div>
         <div className="rounded-2xl bg-navy p-6 text-white shadow-card">
           <h3 className="font-bold">Tax Summary</h3>

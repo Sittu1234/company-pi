@@ -40,6 +40,8 @@ export function InvoicePdfPreview({
   const isTax = kind === "tax";
   const [discountPercent, setDiscountPercent] = useState(String(invoice.discount_percent ?? "0"));
   const [notes, setNotes] = useState(invoice.notes || "");
+  const [includeProposal, setIncludeProposal] = useState(Boolean(invoice.include_proposal));
+  const [proposalNote, setProposalNote] = useState(invoice.proposal_note || "");
   const [remarks, setRemarks] = useState(invoice.items.map((it) => it.remark || ""));
   const [taxNo, setTaxNo] = useState(invoice.tax_invoice_number || "");
   const [taxDate, setTaxDate] = useState(invoice.tax_invoice_date || "");
@@ -111,6 +113,8 @@ export function InvoicePdfPreview({
         discount_percent: Number(discountPercent || 0),
         discount: Number(discountPercent || 0),
         notes,
+        include_proposal: includeProposal,
+        proposal_note: proposalNote,
         items_data: itemsPayload(invoice, remarks),
       };
       if (isTax) {
@@ -190,6 +194,32 @@ export function InvoicePdfPreview({
                     placeholder="Battery included, charger free, special offer…"
                   />
                 </div>
+                {!isTax && (
+                  <div className="rounded-xl border border-slate-200 bg-white p-3">
+                    <label className="flex items-start gap-3">
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4"
+                        checked={includeProposal}
+                        onChange={(e) => setIncludeProposal(e.target.checked)}
+                      />
+                      <span>
+                        <span className="block text-sm font-semibold text-navy">Include business proposal</span>
+                        <span className="text-xs text-slate-500">Adds a proposal page in this quotation PDF.</span>
+                      </span>
+                    </label>
+                    {includeProposal && (
+                      <div className="mt-3">
+                        <Label>Extra proposal note</Label>
+                        <Textarea
+                          value={proposalNote}
+                          onChange={(e) => setProposalNote(e.target.value)}
+                          placeholder="Optional note for this dealer…"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div>
                   <Label>Item extra text</Label>
                   <p className="mb-2 text-xs text-slate-500">Printed under the product name, e.g. Charger free.</p>
