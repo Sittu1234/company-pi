@@ -98,6 +98,7 @@ export type Invoice = {
   status: "draft" | "sent" | "accepted" | "invoiced" | "expired" | "cancelled";
   freight_charges: number | string;
   packing_charges: number | string;
+  discount_percent?: number | string;
   discount: number | string;
   notes: string;
   terms: string;

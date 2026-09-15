@@ -387,7 +387,7 @@ export default function InvoiceDetailPage() {
           <p>Sub Total: {formatINR(Number(inv.subtotal))}</p>
           <p>Freight: {formatINR(Number(inv.freight_charges))}</p>
           <p>Packing: {formatINR(Number(inv.packing_charges))}</p>
-          <p>Discount: {formatINR(Number(inv.discount))}</p>
+          <p>Discount: {Number(inv.discount_percent || 0)}% ({formatINR(Number(inv.discount))})</p>
           <p>CGST: {formatINR(Number(inv.cgst_amount))}</p>
           <p>SGST: {formatINR(Number(inv.sgst_amount))}</p>
           <p>IGST: {formatINR(Number(inv.igst_amount))}</p>

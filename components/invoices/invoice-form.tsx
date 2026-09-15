@@ -60,7 +60,7 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
   const [status, setStatus] = useState("draft");
   const [freight, setFreight] = useState(0);
   const [packing, setPacking] = useState(0);
-  const [discount, setDiscount] = useState(0);
+  const [discountPercent, setDiscountPercent] = useState(0);
   const [notes, setNotes] = useState("");
   const [terms, setTerms] = useState("");
   const [piKind, setPiKind] = useState<PiKind | "">("");
@@ -101,7 +101,7 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
         setStatus(inv.status);
         setFreight(Number(inv.freight_charges));
         setPacking(Number(inv.packing_charges));
-        setDiscount(Number(inv.discount));
+        setDiscountPercent(Number(inv.discount_percent || 0));
         setNotes(inv.notes || "");
         setTerms(inv.terms || "");
         setPiKind((inv.pi_kind as PiKind) || "battery");
@@ -139,11 +139,14 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
     const subtotal = lines.reduce((s, l) => s + lineAmount(l).amt, 0);
     const itemGst = lines.reduce((s, l) => s + lineAmount(l).gstAmt, 0);
     const extraGst = ((freight + packing) * Number(company?.default_gst || 18)) / 100;
-    const gst = itemGst + extraGst;
-    const taxable = Math.max(0, subtotal + freight + packing - discount);
+    const gstFull = itemGst + extraGst;
+    const pct = Math.min(100, Math.max(0, Number(discountPercent || 0)));
+    const discountAmt = Math.max(0, ((subtotal + freight + packing) * pct) / 100);
+    const taxable = Math.max(0, subtotal + freight + packing - discountAmt);
+    const gst = gstFull * (1 - pct / 100);
     const grand = taxable + gst;
-    return { subtotal, gst, grand, extraGst };
-  }, [lines, freight, packing, discount, company]);
+    return { subtotal, gst, grand, extraGst, discountAmt };
+  }, [lines, freight, packing, discountPercent, company]);
 
   function pickProduct(index: number, pid: string) {
     const p = products.find((x) => String(x.id) === pid);
@@ -188,7 +191,7 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
       status,
       freight_charges: freight,
       packing_charges: packing,
-      discount,
+      discount_percent: discountPercent,
       notes,
       terms,
       pi_kind: piKind,
@@ -443,8 +446,15 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
               <Input type="number" step="0.01" value={packing} onChange={(e) => setPacking(Number(e.target.value))} />
             </div>
             <div>
-              <Label>Discount</Label>
-              <Input type="number" step="0.01" value={discount} onChange={(e) => setDiscount(Number(e.target.value))} />
+              <Label>Discount %</Label>
+              <Input
+                type="number"
+                min={0}
+                max={100}
+                step="0.01"
+                value={discountPercent}
+                onChange={(e) => setDiscountPercent(Number(e.target.value))}
+              />
             </div>
           </div>
           <div>
@@ -461,7 +471,7 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
           <div className="mt-4 space-y-2 text-sm">
             <Row label="Sub Total" value={formatINR(totals.subtotal)} />
             <Row label="Freight + Packing" value={formatINR(freight + packing)} />
-            <Row label="Discount" value={`- ${formatINR(discount)}`} />
+            <Row label={`Discount (${Number(discountPercent || 0)}%)`} value={`- ${formatINR(totals.discountAmt)}`} />
             {interstate ? (
               <Row label="IGST" value={formatINR(totals.gst)} />
             ) : (

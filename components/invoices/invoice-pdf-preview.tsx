@@ -38,7 +38,7 @@ export function InvoicePdfPreview({
   onUpdated: (inv: Invoice) => void;
 }) {
   const isTax = kind === "tax";
-  const [discount, setDiscount] = useState(String(invoice.discount ?? "0"));
+  const [discountPercent, setDiscountPercent] = useState(String(invoice.discount_percent ?? "0"));
   const [notes, setNotes] = useState(invoice.notes || "");
   const [remarks, setRemarks] = useState(invoice.items.map((it) => it.remark || ""));
   const [taxNo, setTaxNo] = useState(invoice.tax_invoice_number || "");
@@ -50,6 +50,9 @@ export function InvoicePdfPreview({
 
   const invoiceAmount = Number(invoice.grand_total || 0);
   const remaining = Math.max(0, invoiceAmount - Number(advance || 0));
+  const discountBase =
+    Number(invoice.subtotal || 0) + Number(invoice.freight_charges || 0) + Number(invoice.packing_charges || 0);
+  const discountAmt = Math.max(0, (discountBase * Number(discountPercent || 0)) / 100);
   const pdfPath = isTax ? `/api/invoices/${invoice.id}/pdf/?kind=tax&inline=1` : `/api/invoices/${invoice.id}/pdf/?inline=1`;
   const filename = isTax ? `${invoice.tax_invoice_number || "tax-invoice"}.pdf` : `${invoice.pi_number}.pdf`;
 
@@ -94,8 +97,8 @@ export function InvoicePdfPreview({
 
   async function saveCustomise() {
     if (!canCustomize) return true;
-    if (Number(discount || 0) < 0) {
-      toast.error("Discount cannot be negative");
+    if (Number(discountPercent || 0) < 0 || Number(discountPercent || 0) > 100) {
+      toast.error("Discount must be between 0 and 100%");
       return false;
     }
     if (isTax && Number(advance || 0) > invoiceAmount) {
@@ -105,7 +108,7 @@ export function InvoicePdfPreview({
     setSaving(true);
     try {
       const payload: Record<string, unknown> = {
-        discount: Number(discount || 0),
+        discount_percent: Number(discountPercent || 0),
         notes,
         items_data: itemsPayload(invoice, remarks),
       };
@@ -160,9 +163,18 @@ export function InvoicePdfPreview({
             {canCustomize ? (
               <>
                 <div>
-                  <Label>Discount on total</Label>
-                  <Input type="number" min={0} step="0.01" value={discount} onChange={(e) => setDiscount(e.target.value)} />
-                  <p className="mt-1 text-xs text-slate-500">Shown as “Less : Discount” on the PDF total.</p>
+                  <Label>Discount %</Label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step="0.01"
+                    value={discountPercent}
+                    onChange={(e) => setDiscountPercent(e.target.value)}
+                  />
+                  <p className="mt-1 text-xs text-slate-500">
+                    Example: 10 means 10%. PDF will show “Less : Discount (10%)” and subtract {formatINR(discountAmt)}.
+                  </p>
                 </div>
                 <div>
                   <Label>Extra note on PDF</Label>
