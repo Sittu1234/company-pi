@@ -109,6 +109,7 @@ export function InvoicePdfPreview({
     try {
       const payload: Record<string, unknown> = {
         discount_percent: Number(discountPercent || 0),
+        discount: Number(discountPercent || 0),
         notes,
         items_data: itemsPayload(invoice, remarks),
       };
@@ -163,18 +164,23 @@ export function InvoicePdfPreview({
             {canCustomize ? (
               <>
                 <div>
-                  <Label>Discount %</Label>
-                  <Input
-                    type="number"
-                    min={0}
-                    max={100}
-                    step="0.01"
-                    value={discountPercent}
-                    onChange={(e) => setDiscountPercent(e.target.value)}
-                  />
-                  <p className="mt-1 text-xs text-slate-500">
-                    Example: 10 means 10%. PDF will show “Less : Discount (10%)” and subtract {formatINR(discountAmt)}.
-                  </p>
+                  <Label>Discount percent (%)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      type="number"
+                      min={0}
+                      max={100}
+                      step="0.01"
+                      value={discountPercent}
+                      onChange={(e) => setDiscountPercent(e.target.value)}
+                      className="font-semibold"
+                    />
+                    <span className="text-sm font-bold text-navy">%</span>
+                  </div>
+                  <div className="mt-2 rounded-xl bg-navy px-3 py-2 text-white">
+                    <p className="text-xs text-blue-100">Discount {Number(discountPercent || 0)}%</p>
+                    <p className="text-lg font-extrabold">− {formatINR(discountAmt)}</p>
+                  </div>
                 </div>
                 <div>
                   <Label>Extra note on PDF</Label>
