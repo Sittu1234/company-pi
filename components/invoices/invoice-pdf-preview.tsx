@@ -55,7 +55,19 @@ export function InvoicePdfPreview({
   const discountBase =
     Number(invoice.subtotal || 0) + Number(invoice.freight_charges || 0) + Number(invoice.packing_charges || 0);
   const discountAmt = Math.max(0, (discountBase * Number(discountPercent || 0)) / 100);
-  const pdfPath = isTax ? `/api/invoices/${invoice.id}/pdf/?kind=tax&inline=1` : `/api/invoices/${invoice.id}/pdf/?inline=1`;
+  const pdfPath = (() => {
+    const p = new URLSearchParams({ inline: "1" });
+    if (isTax) p.set("kind", "tax");
+    if (!isTax && includeProposal) p.set("proposal", "1");
+    return `/api/invoices/${invoice.id}/pdf/?${p.toString()}`;
+  })();
+  const downloadPath = (() => {
+    const p = new URLSearchParams();
+    if (isTax) p.set("kind", "tax");
+    if (!isTax && includeProposal) p.set("proposal", "1");
+    const q = p.toString();
+    return `/api/invoices/${invoice.id}/pdf/${q ? `?${q}` : ""}`;
+  })();
   const filename = isTax ? `${invoice.tax_invoice_number || "tax-invoice"}.pdf` : `${invoice.pi_number}.pdf`;
 
   const loadPdf = useCallback(async () => {
@@ -143,7 +155,7 @@ export function InvoicePdfPreview({
       const ok = await saveCustomise();
       if (!ok) return;
     }
-    await downloadFile(isTax ? `/api/invoices/${invoice.id}/pdf/?kind=tax` : `/api/invoices/${invoice.id}/pdf/`, filename);
+    await downloadFile(downloadPath, filename);
   }
 
   return (
