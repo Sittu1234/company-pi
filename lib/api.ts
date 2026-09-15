@@ -94,9 +94,16 @@ export async function downloadFile(path: string, filename: string) {
   URL.revokeObjectURL(url);
 }
 
-export async function openPdf(path: string) {
+export async function fetchPdfBlob(path: string): Promise<Blob> {
   const res = await api<Response>(path, { raw: true });
-  const blob = await res.blob();
+  if (!res.ok) {
+    throw new ApiError("Could not load PDF", res.status, null);
+  }
+  return res.blob();
+}
+
+export async function openPdf(path: string) {
+  const blob = await fetchPdfBlob(path);
   const url = URL.createObjectURL(blob);
   window.open(url, "_blank");
 }

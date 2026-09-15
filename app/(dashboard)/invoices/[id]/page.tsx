@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Download, Mail, MessageCircle, Pencil, Printer, Receipt, Trash2 } from "lucide-react";
+import { Download, Eye, Mail, MessageCircle, Pencil, Printer, Receipt, SlidersHorizontal, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { ApiError, api, downloadFile, openPdf } from "@/lib/api";
 import { canManageUsers, canWriteInvoices, getStoredUser } from "@/lib/auth";
 import { formatDate, formatDateTime, formatINR } from "@/lib/utils";
 import type { Invoice } from "@/lib/types";
+import { InvoicePdfPreview } from "@/components/invoices/invoice-pdf-preview";
 
 export default function InvoiceDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -24,6 +25,7 @@ export default function InvoiceDetailPage() {
   const [advance, setAdvance] = useState("0");
   const [showConvert, setShowConvert] = useState(false);
   const [savingTax, setSavingTax] = useState(false);
+  const [previewKind, setPreviewKind] = useState<"pi" | "tax" | null>(null);
   const role = getStoredUser()?.role;
   const canWrite = canWriteInvoices(role);
 
@@ -92,7 +94,11 @@ export default function InvoiceDetailPage() {
       });
       toast.success(`Tax Invoice ${saved.tax_invoice_number} saved`);
       setShowConvert(false);
-      load();
+      setInv(saved);
+      setTaxNo(saved.tax_invoice_number || "");
+      setTaxDate(saved.tax_invoice_date || "");
+      setAdvance(String(saved.advance_received ?? "0"));
+      setPreviewKind("tax");
     } catch (err) {
       toast.error(err instanceof ApiError ? err.message : "Convert failed");
     } finally {
@@ -149,6 +155,7 @@ export default function InvoiceDetailPage() {
       inv.status !== "expired");
 
   return (
+    <>
     <div className="space-y-5">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
@@ -186,8 +193,14 @@ export default function InvoiceDetailPage() {
           )}
           {hasTax && (
             <>
+              <Button variant="navy" onClick={() => setPreviewKind("tax")}>
+                <SlidersHorizontal size={16} /> Customise Tax Invoice
+              </Button>
+              <Button variant="outline" onClick={() => setPreviewKind("tax")}>
+                <Eye size={16} /> Preview Tax Invoice
+              </Button>
               <Button
-                variant="navy"
+                variant="outline"
                 onClick={() => downloadFile(`/api/invoices/${id}/pdf/?kind=tax`, `${inv.tax_invoice_number}.pdf`)}
               >
                 <Download size={16} /> Tax Invoice PDF
@@ -197,6 +210,12 @@ export default function InvoiceDetailPage() {
               </Button>
             </>
           )}
+          <Button variant="navy" onClick={() => setPreviewKind("pi")}>
+            <SlidersHorizontal size={16} /> Customise PDF
+          </Button>
+          <Button variant="outline" onClick={() => setPreviewKind("pi")}>
+            <Eye size={16} /> Preview PDF
+          </Button>
           <Button variant="outline" onClick={() => downloadFile(`/api/invoices/${id}/pdf/`, `${inv.pi_number}.pdf`)}>
             <Download size={16} /> Download PDF
           </Button>
@@ -334,7 +353,10 @@ export default function InvoiceDetailPage() {
             {inv.items.map((it, i) => (
               <tr key={i} className="border-t">
                 <td className="px-3 py-2">{i + 1}</td>
-                <td className="px-3 py-2 font-medium">{it.product_name}</td>
+                <td className="px-3 py-2 font-medium">
+                  {it.product_name}
+                  {it.remark ? <p className="text-xs font-normal italic text-slate-500">{it.remark}</p> : null}
+                </td>
                 <td className="px-3 py-2">{it.hsn_code}</td>
                 <td className="px-3 py-2">
                   {it.qty} {it.unit}
@@ -422,5 +444,20 @@ export default function InvoiceDetailPage() {
         </table>
       </div>
     </div>
+    {previewKind && (
+      <InvoicePdfPreview
+        invoice={inv}
+        kind={previewKind}
+        canCustomize={canWrite}
+        onClose={() => setPreviewKind(null)}
+        onUpdated={(saved) => {
+          setInv(saved);
+          setTaxNo(saved.tax_invoice_number || "");
+          setTaxDate(saved.tax_invoice_date || "");
+          setAdvance(String(saved.advance_received ?? "0"));
+        }}
+      />
+    )}
+    </>
   );
 }

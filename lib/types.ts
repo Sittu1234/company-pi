@@ -85,6 +85,7 @@ export type InvoiceItem = {
   amount?: number | string;
   gst_amount?: number | string;
   total_amount?: number | string;
+  remark?: string;
 };
 
 export type Invoice = {

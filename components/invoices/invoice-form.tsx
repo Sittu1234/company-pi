@@ -15,6 +15,7 @@ import type { CompanySettings, Customer, Invoice, Product } from "@/lib/types";
 type Line = {
   product: number | "";
   product_name: string;
+  remark: string;
   hsn_code: string;
   unit: string;
   qty: number;
@@ -25,6 +26,7 @@ type Line = {
 const emptyLine = (): Line => ({
   product: "",
   product_name: "",
+  remark: "",
   hsn_code: "",
   unit: "PCS",
   qty: 1,
@@ -110,6 +112,7 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
           inv.items.map((i) => ({
             product: i.product || "",
             product_name: i.product_name,
+            remark: i.remark || "",
             hsn_code: i.hsn_code,
             unit: i.unit,
             qty: Number(i.qty),
@@ -150,6 +153,7 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
           ? {
               product: Number(pid),
               product_name: p?.product_name || r.product_name,
+              remark: r.remark || "",
               hsn_code: p?.hsn_code || "",
               unit: p?.unit || "PCS",
               qty: r.qty || 1,
@@ -196,6 +200,7 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
         .map((l) => ({
           product: l.product || null,
           product_name: l.product_name,
+          remark: l.remark || "",
           hsn_code: l.hsn_code,
           unit: l.unit,
           qty: l.qty,
@@ -384,6 +389,12 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
                         </option>
                       ))}
                     </Select>
+                    <Input
+                      className="mt-1"
+                      placeholder="Extra text e.g. Charger free"
+                      value={l.remark}
+                      onChange={(e) => setLines((r) => r.map((x, n) => (n === i ? { ...x, remark: e.target.value } : x)))}
+                    />
                   </td>
                   <td className="px-2 py-2">
                     <Input value={l.hsn_code} onChange={(e) => setLines((r) => r.map((x, n) => (n === i ? { ...x, hsn_code: e.target.value } : x)))} />
@@ -437,8 +448,12 @@ export function InvoiceForm({ invoiceId, dealerId }: { invoiceId?: string; deale
             </div>
           </div>
           <div>
-            <Label>Notes</Label>
-            <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} />
+            <Label>Notes on PDF</Label>
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Battery included, charger free, special offer…"
+            />
           </div>
         </div>
         <div className="rounded-2xl bg-navy p-6 text-white shadow-card">
