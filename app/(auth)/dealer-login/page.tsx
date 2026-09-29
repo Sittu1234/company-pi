@@ -43,7 +43,10 @@ export default function DealerLoginPage() {
         <div className="mt-6"><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
         <div className="mt-4"><Label>Password</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
         <Button className="mt-6 w-full" disabled={loading}>{loading ? "Signing in…" : "Enter portal"}</Button>
-        <Link href="/login" className="mt-4 block text-center text-xs font-semibold text-slate-500">Staff login →</Link>
+        <Link href="/#dealer-register" className="mt-4 block text-center text-xs font-semibold text-electric">
+          New dealer? Register on the home page
+        </Link>
+        <Link href="/login" className="mt-2 block text-center text-xs font-semibold text-slate-500">Staff login →</Link>
       </form>
     </div>
   );

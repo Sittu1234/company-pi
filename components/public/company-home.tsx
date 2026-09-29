@@ -23,6 +23,7 @@ import type {
   PublicHighlight,
   PublicPageContent,
 } from "@/lib/types";
+import { DealerRegister } from "@/components/public/dealer-register";
 import { SiteHeader } from "@/components/public/site-header";
 
 const FALLBACK_COMPANY: PublicCompany = {
@@ -179,16 +180,16 @@ export function CompanyHome() {
             <p className="mt-4 max-w-xl text-base text-blue-100 md:text-lg">{page.hero_body}</p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a
-                href="#calendar"
+                href="#dealer-register"
                 className="inline-flex h-12 items-center rounded-xl bg-[#C9A227] px-6 text-sm font-extrabold text-navy shadow-lg hover:bg-[#E8C547]"
               >
-                {page.cta_primary || "Company calendar"}
+                Register as dealer
               </a>
               <a
-                href="#contact"
+                href="#calendar"
                 className="inline-flex h-12 items-center rounded-xl border border-white/40 bg-white/10 px-6 text-sm font-semibold backdrop-blur hover:bg-white/20"
               >
-                {page.cta_secondary || "Careers"}
+                {page.cta_primary || "Company calendar"}
               </a>
             </div>
           </div>
@@ -379,6 +380,8 @@ export function CompanyHome() {
           )}
         </div>
       </section>
+
+      <DealerRegister />
 
       <footer id="contact" className="relative overflow-hidden bg-[#061526] text-white">
         <img src={heroImage} alt="" className="absolute inset-0 h-full w-full object-cover opacity-20" />

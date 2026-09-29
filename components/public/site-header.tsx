@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ChevronDown, LayoutDashboard, LogIn, Menu, X } from "lucide-react";
-import { getStoredUser } from "@/lib/auth";
+import { getStoredUser, homePath, isDealer } from "@/lib/auth";
 
 const ROLES = [
   { id: "admin", label: "Admin", hint: "Full company ERP" },
@@ -23,10 +23,13 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const [menu, setMenu] = useState(false);
   const [loggedIn, setLoggedIn] = useState(false);
+  const [home, setHome] = useState("/dashboard");
   const box = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setLoggedIn(Boolean(getStoredUser()));
+    const user = getStoredUser();
+    setLoggedIn(Boolean(user));
+    if (user) setHome(isDealer(user.role) ? "/portal" : homePath(user.role));
   }, []);
 
   useEffect(() => {
@@ -59,10 +62,10 @@ export function SiteHeader() {
         <div className="ml-auto flex items-center gap-2">
           {loggedIn ? (
             <Link
-              href="/dashboard"
+              href={home}
               className="inline-flex h-11 items-center gap-2 rounded-xl bg-electric px-4 text-sm font-semibold text-white hover:bg-electric-700"
             >
-              <LayoutDashboard size={16} /> Dashboard
+              <LayoutDashboard size={16} /> {home === "/portal" ? "Portal" : "Dashboard"}
             </Link>
           ) : (
             <div ref={box} className="relative">
@@ -89,6 +92,22 @@ export function SiteHeader() {
                       <p className="text-xs text-slate-500">{r.hint}</p>
                     </Link>
                   ))}
+                  <Link
+                    href="/dealer-login"
+                    className="block border-t border-slate-100 px-4 py-2.5 hover:bg-amber-50"
+                    onClick={() => setOpen(false)}
+                  >
+                    <p className="text-sm font-extrabold">Dealer</p>
+                    <p className="text-xs text-slate-500">Already registered</p>
+                  </Link>
+                  <a
+                    href="#dealer-register"
+                    className="block px-4 py-2.5 hover:bg-amber-50"
+                    onClick={() => setOpen(false)}
+                  >
+                    <p className="text-sm font-extrabold">Register as dealer</p>
+                    <p className="text-xs text-slate-500">Create a portal login</p>
+                  </a>
                 </div>
               )}
             </div>
@@ -105,6 +124,9 @@ export function SiteHeader() {
               {l.label}
             </a>
           ))}
+          <a href="#dealer-register" className="block py-2 text-[#E8C547]" onClick={() => setMenu(false)}>
+            Register as dealer
+          </a>
         </div>
       )}
     </header>
