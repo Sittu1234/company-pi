@@ -89,8 +89,8 @@ export default function ReportsPage() {
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
           <div className="grid gap-4 sm:grid-cols-3">
-            <Stat label="PI Created" value={daily.pi_count} />
-            <Stat label="Sales Value" value={formatINR(daily.sales_value)} />
+            <Stat label="Tax invoices" value={daily.pi_count} />
+            <Stat label="Invoice value" value={formatINR(daily.sales_value)} />
             <Stat label="Customer Count" value={daily.customer_count} />
           </div>
           {!salesUser && (
@@ -143,8 +143,8 @@ export default function ReportsPage() {
             </div>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <Stat label="Monthly PI Count" value={monthly.pi_count} />
-            <Stat label="Monthly Sales" value={formatINR(monthly.sales_value)} />
+            <Stat label="Tax invoices" value={monthly.pi_count} />
+            <Stat label="Invoice value" value={formatINR(monthly.sales_value)} />
           </div>
           {!salesUser && (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

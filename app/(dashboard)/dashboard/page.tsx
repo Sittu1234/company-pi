@@ -109,7 +109,7 @@ export default function DashboardPage() {
   const stats = [
     { label: salesUser ? "My PIs" : "Total Proforma Invoices", value: data?.total_invoices ?? "-", icon: FileText, color: "bg-electric-50 text-electric" },
     { label: salesUser ? "My Dealers" : "Total Dealers", value: data?.total_dealers ?? data?.total_customers ?? "-", icon: Users, color: "bg-sky-50 text-sky-700" },
-    { label: salesUser ? "My Monthly Sales" : "Monthly Sales Value", value: data ? formatINR(data.monthly_sales) : "-", icon: IndianRupee, color: "bg-emerald-50 text-emerald-700" },
+    { label: salesUser ? "My invoiced sales" : "Invoiced this month", value: data ? formatINR(data.monthly_sales) : "-", icon: IndianRupee, color: "bg-emerald-50 text-emerald-700" },
     { label: "Pending Quotations", value: data?.pending_quotations ?? "-", icon: Clock, color: "bg-amber-50 text-amber-700" },
   ];
 
@@ -188,7 +188,7 @@ export default function DashboardPage() {
       {(accountsUser || isAdmin) && (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <div className="stat-card">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">This month taxable</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">Invoiced taxable</p>
             <p className="mt-1 text-2xl font-extrabold text-navy">{data ? formatINR(data.monthly_taxable || 0) : "—"}</p>
           </div>
           <div className="stat-card">
@@ -229,7 +229,8 @@ export default function DashboardPage() {
 
       <div className="grid gap-6 xl:grid-cols-3">
         <div className="stat-card xl:col-span-2">
-          <h2 className="mb-4 font-bold text-navy">Monthly Sales</h2>
+          <h2 className="mb-4 font-bold text-navy">Tax invoice sales</h2>
+          <p className="mb-3 text-xs text-slate-500">Only invoices that have been cut. Quotations are not included.</p>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={data?.monthly_graph || []}>
@@ -251,7 +252,7 @@ export default function DashboardPage() {
                   <p className="text-sm font-semibold">
                     {i + 1}. {c.name}
                   </p>
-                  <p className="text-xs text-slate-500">{c.company} · {c.count} PI</p>
+                  <p className="text-xs text-slate-500">{c.company} · {c.count} invoices</p>
                 </div>
                 <p className="text-sm font-bold text-electric">{formatINR(c.total)}</p>
               </div>
