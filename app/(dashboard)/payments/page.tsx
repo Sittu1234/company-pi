@@ -30,7 +30,8 @@ export default function PaymentsPage() {
         body: JSON.stringify({
           ...form,
           customer: Number(form.customer),
-          invoice: form.invoice ? Number(form.invoice) : null,
+          amount: Number(form.amount),
+          invoice: form.invoice.trim() || null,
         }),
       });
       toast.success("Payment recorded");
@@ -81,7 +82,15 @@ export default function PaymentsPage() {
             <option value="full">Full</option>
           </Select>
         </div>
-        <div><Label>Invoice ID (optional)</Label><Input value={form.invoice} onChange={(e) => setForm({ ...form, invoice: e.target.value })} /></div>
+        <div>
+          <Label>Invoice</Label>
+          <Select value={form.invoice} onChange={(e) => setForm({ ...form, invoice: e.target.value })}>
+            <option value="">No invoice</option>
+            {(dash?.dues || []).map((d: { id: number; number: string; customer: string; due: number }) => (
+              <option key={d.id} value={d.number}>{d.number} · {d.customer} · {formatINR(d.due)}</option>
+            ))}
+          </Select>
+        </div>
         <div><Label>Reference</Label><Input value={form.reference} onChange={(e) => setForm({ ...form, reference: e.target.value })} /></div>
         <div className="md:col-span-2"><Button>Record payment</Button></div>
       </form>

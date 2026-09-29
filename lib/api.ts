@@ -73,7 +73,14 @@ export async function api<T = unknown>(path: string, options: Options = {}): Pro
   if (raw) return res as unknown as T;
 
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  let data: { detail?: string; message?: string } | null = null;
+  if (text) {
+    try {
+      data = JSON.parse(text);
+    } catch {
+      throw new ApiError(res.ok ? "Unexpected response from server." : "Server error. Please try again.", res.status, text);
+    }
+  }
   if (!res.ok) {
     const detail =
       (data && (data.detail || data.message)) ||
