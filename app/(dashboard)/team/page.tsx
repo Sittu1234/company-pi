@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Input, Label, PasswordInput, Select } from "@/components/ui/input";
 import { Badge } from "@/components/ui/card";
 import { api } from "@/lib/api";
 import { canManageCompany, getStoredUser } from "@/lib/auth";
@@ -97,8 +97,7 @@ export default function TeamPage() {
         </div>
         <div>
           <Label>Password *</Label>
-          <Input
-            type="password"
+          <PasswordInput
             minLength={8}
             value={form.password}
             onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -129,8 +128,7 @@ export default function TeamPage() {
         <form onSubmit={resetPassword} className="flex flex-wrap items-end gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4">
           <div className="min-w-[220px] flex-1">
             <Label>New password for {resetFor.name} ({resetFor.employee_id})</Label>
-            <Input
-              type="password"
+            <PasswordInput
               minLength={8}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}

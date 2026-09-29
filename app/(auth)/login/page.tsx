@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input, Label, Select } from "@/components/ui/input";
+import { Input, Label, PasswordInput, Select } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { setSession, homePath } from "@/lib/auth";
 import type { Role, User } from "@/lib/types";
@@ -100,7 +100,7 @@ function LoginInner() {
           </div>
           <div className="mt-4">
             <Label>Password</Label>
-            <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+            <PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} required />
           </div>
           <div className="mt-2 text-right">
             <Link href="/forgot-password" className="text-xs font-semibold text-electric hover:underline">

@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input, Label } from "@/components/ui/input";
+import { Input, Label, PasswordInput } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { setSession } from "@/lib/auth";
 import type { User } from "@/lib/types";
@@ -41,7 +41,7 @@ export default function DealerLoginPage() {
         <h1 className="mt-1 text-2xl font-extrabold">Kalpna Traders</h1>
         <p className="mt-1 text-sm text-slate-500">Sign in with the email shared by the company.</p>
         <div className="mt-6"><Label>Email</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
-        <div className="mt-4"><Label>Password</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
+        <div className="mt-4"><Label>Password</Label><PasswordInput value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
         <Button className="mt-6 w-full" disabled={loading}>{loading ? "Signing in…" : "Enter portal"}</Button>
         <Link href="/#dealer-register" className="mt-4 block text-center text-xs font-semibold text-electric">
           New dealer? Register on the home page

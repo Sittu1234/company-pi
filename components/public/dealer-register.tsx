@@ -4,7 +4,7 @@ import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Input, Label } from "@/components/ui/input";
+import { Input, Label, PasswordInput } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { setSession } from "@/lib/auth";
 import type { User } from "@/lib/types";
@@ -85,8 +85,7 @@ export function DealerRegister() {
           </div>
           <div>
             <Label>Password *</Label>
-            <Input
-              type="password"
+            <PasswordInput
               minLength={8}
               value={form.password}
               onChange={(e) => set("password", e.target.value)}

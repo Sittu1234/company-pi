@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input, Label } from "@/components/ui/input";
+import { Label, PasswordInput } from "@/components/ui/input";
 import { api } from "@/lib/api";
 
 function ResetForm() {
@@ -35,7 +35,7 @@ function ResetForm() {
       <h1 className="text-2xl font-extrabold text-navy">Reset password</h1>
       <div className="mt-6">
         <Label>New password</Label>
-        <Input type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required />
+        <PasswordInput minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required />
       </div>
       <Button className="mt-6 w-full" disabled={!token}>
         Update password

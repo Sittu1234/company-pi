@@ -4,7 +4,7 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input, Label, Select, Textarea } from "@/components/ui/input";
+import { Input, Label, PasswordInput, Select, Textarea } from "@/components/ui/input";
 import { api } from "@/lib/api";
 import { canManageCompany, canWriteCustomers, getStoredUser } from "@/lib/auth";
 import { INDIAN_STATES, type Customer, type PartyType, type User } from "@/lib/types";
@@ -191,7 +191,7 @@ export function CustomerForm({ id, kind = "dealer" }: { id?: string; kind?: Part
         <div className="flex flex-wrap items-end gap-2 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
           <div>
             <Label>Dealer portal password</Label>
-            <Input type="password" minLength={8} value={portalPass} onChange={(e) => setPortalPass(e.target.value)} placeholder="Min 8 characters" />
+            <PasswordInput minLength={8} value={portalPass} onChange={(e) => setPortalPass(e.target.value)} placeholder="Min 8 characters" />
           </div>
           <Button
             type="button"
