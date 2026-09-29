@@ -110,7 +110,10 @@ export default function TeamPage() {
           <Select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
             <option value="sales">Sales Executive</option>
             <option value="accountant">Accountant</option>
-            <option value="admin">Admin</option>
+            <option value="hr">HR</option>
+            <option value="manager">Manager</option>
+            <option value="technician">Technician</option>
+            <option value="admin">Admin / MD</option>
           </Select>
         </div>
         <div>

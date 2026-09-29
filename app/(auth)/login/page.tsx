@@ -7,13 +7,16 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input, Label, Select } from "@/components/ui/input";
 import { api } from "@/lib/api";
-import { setSession } from "@/lib/auth";
+import { setSession, homePath } from "@/lib/auth";
 import type { Role, User } from "@/lib/types";
 
 const ROLE_OPTIONS: { value: Role; label: string; id: string; password: string }[] = [
-  { value: "admin", label: "Admin", id: "KT001", password: "Admin@123" },
+  { value: "admin", label: "Admin / MD", id: "KT001", password: "Admin@123" },
   { value: "sales", label: "Sales", id: "KT002", password: "Sales@123" },
   { value: "accountant", label: "Accountant", id: "KT003", password: "Accounts@123" },
+  { value: "hr", label: "HR", id: "", password: "" },
+  { value: "manager", label: "Manager", id: "", password: "" },
+  { value: "technician", label: "Technician", id: "", password: "" },
 ];
 
 function LoginInner() {
@@ -43,7 +46,7 @@ function LoginInner() {
       });
       setSession(data.access, data.refresh, data.user);
       toast.success(`Welcome back, ${data.user.name}`);
-      router.replace("/dashboard");
+      router.replace(homePath(data.user.role));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Login failed");
     } finally {
@@ -107,7 +110,10 @@ function LoginInner() {
           <Button className="mt-6 w-full" disabled={loading}>
             {loading ? "Signing in…" : `Sign in as ${preset.label}`}
           </Button>
-          <Link href="/" className="mt-4 block text-center text-xs font-semibold text-slate-500 hover:text-navy">
+          <Link href="/dealer-login" className="mt-4 block text-center text-xs font-semibold text-slate-500 hover:text-navy">
+            Dealer portal login →
+          </Link>
+          <Link href="/" className="mt-2 block text-center text-xs font-semibold text-slate-500 hover:text-navy">
             ← Back to company page
           </Link>
         </form>

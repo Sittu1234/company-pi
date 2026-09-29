@@ -31,6 +31,7 @@ export function CustomerForm({ id, kind = "dealer" }: { id?: string; kind?: Part
   const router = useRouter();
   const [form, setForm] = useState(empty);
   const [team, setTeam] = useState<User[]>([]);
+  const [portalPass, setPortalPass] = useState("");
   const isAdmin = canManageCompany(getStoredUser()?.role);
   const canWrite = canWriteCustomers(getStoredUser()?.role);
   const readOnly = Boolean(id) && !canWrite;
@@ -186,6 +187,32 @@ export function CustomerForm({ id, kind = "dealer" }: { id?: string; kind?: Part
           {readOnly ? "Back" : "Cancel"}
         </Button>
       </div>
+      {isAdmin && kind === "dealer" && id && (
+        <div className="flex flex-wrap items-end gap-2 rounded-xl border border-slate-200 p-4 dark:border-slate-700">
+          <div>
+            <Label>Dealer portal password</Label>
+            <Input type="password" minLength={8} value={portalPass} onChange={(e) => setPortalPass(e.target.value)} placeholder="Min 8 characters" />
+          </div>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={async () => {
+              try {
+                await api("/api/erp/portal/invite/", {
+                  method: "POST",
+                  body: JSON.stringify({ customer: Number(id), email: form.email, password: portalPass }),
+                });
+                toast.success("Dealer portal login created. Share email + password.");
+                setPortalPass("");
+              } catch (err) {
+                toast.error(err instanceof Error ? err.message : "Invite failed");
+              }
+            }}
+          >
+            Create portal login
+          </Button>
+        </div>
+      )}
     </form>
   );
 }

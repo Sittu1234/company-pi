@@ -1,4 +1,4 @@
-export type Role = "admin" | "sales" | "accountant";
+export type Role = "admin" | "sales" | "accountant" | "hr" | "manager" | "technician" | "dealer";
 
 export type User = {
   id: number;
@@ -7,6 +7,8 @@ export type User = {
   employee_id?: string;
   role: Role;
   mobile?: string;
+  manager?: number | null;
+  linked_dealer?: number | null;
   is_active: boolean;
   last_login?: string | null;
   created_at?: string;

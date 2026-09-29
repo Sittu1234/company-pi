@@ -13,7 +13,7 @@ body {
 }
 
 body {
-  @apply bg-slate-50 text-navy antialiased;
+  @apply bg-slate-50 text-navy antialiased dark:bg-slate-950 dark:text-slate-100;
 }
 
 .erp-gradient {
@@ -21,11 +21,11 @@ body {
 }
 
 .stat-card {
-  @apply rounded-2xl border border-slate-100 bg-white p-5 shadow-card;
+  @apply rounded-2xl border border-slate-100 bg-white p-5 shadow-card dark:border-slate-800 dark:bg-slate-900;
 }
 
 .table-wrap {
-  @apply overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-card;
+  @apply overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-card dark:border-slate-800 dark:bg-slate-900;
 }
 
 input[type="date"]::-webkit-calendar-picker-indicator {

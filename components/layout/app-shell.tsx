@@ -5,51 +5,114 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   Activity,
   BarChart3,
+  Bell,
+  Briefcase,
   Building2,
   CalendarCheck,
   CalendarDays,
+  ClipboardList,
+  FileStack,
   FileText,
+  FolderOpen,
   IndianRupee,
   LayoutDashboard,
   LogOut,
   Package,
   PanelTop,
   Settings,
+  Shield,
+  Sparkles,
   Store,
   UserCog,
+  Users,
+  Warehouse,
+  Wrench,
   Menu,
   X,
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { clearSession, getStoredUser } from "@/lib/auth";
+import { clearSession, getStoredUser, isDealer } from "@/lib/auth";
+import { api } from "@/lib/api";
 import { cn } from "@/lib/utils";
 import type { User } from "@/lib/types";
+import { ThemeToggle } from "@/components/theme-toggle";
 
-const NAV: {
+type NavItem = {
   href: string;
   label: string;
   salesLabel?: string;
   accountantLabel?: string;
   icon: LucideIcon;
   roles: string[];
-}[] = [
-  { href: "/dashboard", label: "Dashboard", salesLabel: "My Dashboard", accountantLabel: "Accounts Dashboard", icon: LayoutDashboard, roles: ["admin", "sales", "accountant"] },
-  { href: "/dealers", label: "Dealers", salesLabel: "My Dealers", accountantLabel: "Dealers", icon: Store, roles: ["admin", "sales", "accountant"] },
-  { href: "/vendors", label: "Vendors", icon: Building2, roles: ["admin"] },
-  { href: "/products", label: "Products", salesLabel: "Product Catalog", accountantLabel: "Product Catalog", icon: Package, roles: ["admin", "sales", "accountant"] },
-  { href: "/price-list", label: "Price List", icon: IndianRupee, roles: ["admin", "sales", "accountant"] },
-  { href: "/invoices", label: "Proforma Invoices", salesLabel: "My PIs", accountantLabel: "All PIs", icon: FileText, roles: ["admin", "sales", "accountant"] },
-  { href: "/team", label: "Team Manage", icon: UserCog, roles: ["admin"] },
-  { href: "/attendance", label: "Attendance", salesLabel: "My Attendance", accountantLabel: "My Attendance", icon: CalendarCheck, roles: ["admin", "sales", "accountant"] },
-  { href: "/calendar", label: "Company Calendar", icon: CalendarDays, roles: ["admin"] },
-  { href: "/public-page", label: "Public page customize", icon: PanelTop, roles: ["admin"] },
-  { href: "/reports", label: "Reports", salesLabel: "My Reports", accountantLabel: "Accounts Reports", icon: BarChart3, roles: ["admin", "sales", "accountant"] },
-  { href: "/settings", label: "Company Settings", icon: Settings, roles: ["admin"] },
-  { href: "/activity", label: "Activity Logs", icon: Activity, roles: ["admin"] },
+};
+
+type NavGroup = { title: string; items: NavItem[] };
+
+const GROUPS: NavGroup[] = [
+  {
+    title: "Overview",
+    items: [
+      { href: "/dashboard", label: "Dashboard", salesLabel: "My Dashboard", accountantLabel: "Accounts Dashboard", icon: LayoutDashboard, roles: ["admin", "sales", "accountant", "hr", "manager", "technician"] },
+      { href: "/md", label: "MD Dashboard", icon: BarChart3, roles: ["admin"] },
+      { href: "/ai-assistant", label: "AI Sales Assistant", icon: Sparkles, roles: ["admin", "sales", "manager"] },
+    ],
+  },
+  {
+    title: "Sales",
+    items: [
+      { href: "/crm", label: "CRM & Leads", salesLabel: "My Leads", icon: Users, roles: ["admin", "sales", "manager"] },
+      { href: "/dealers", label: "Dealers", salesLabel: "My Dealers", icon: Store, roles: ["admin", "sales", "accountant"] },
+      { href: "/invoices", label: "Quotations / PI", salesLabel: "My PIs", accountantLabel: "All PIs", icon: FileText, roles: ["admin", "sales", "accountant"] },
+      { href: "/price-list", label: "Price List", icon: IndianRupee, roles: ["admin", "sales", "accountant"] },
+    ],
+  },
+  {
+    title: "Supply chain",
+    items: [
+      { href: "/products", label: "Products", icon: Package, roles: ["admin", "sales", "accountant"] },
+      { href: "/inventory", label: "Inventory", icon: Warehouse, roles: ["admin", "accountant"] },
+      { href: "/purchases", label: "Purchases", icon: ClipboardList, roles: ["admin", "accountant"] },
+      { href: "/vendors", label: "Vendors", icon: Building2, roles: ["admin", "accountant"] },
+    ],
+  },
+  {
+    title: "Finance",
+    items: [
+      { href: "/payments", label: "Payments & Collection", icon: IndianRupee, roles: ["admin", "accountant", "sales"] },
+      { href: "/reports", label: "Reports", salesLabel: "My Reports", accountantLabel: "Accounts Reports", icon: BarChart3, roles: ["admin", "sales", "accountant"] },
+    ],
+  },
+  {
+    title: "People",
+    items: [
+      { href: "/team", label: "Team Manage", icon: UserCog, roles: ["admin"] },
+      { href: "/hr", label: "HR & Leave", icon: Briefcase, roles: ["admin", "hr", "manager", "sales", "accountant", "technician"] },
+      { href: "/payroll", label: "Payroll", icon: FileStack, roles: ["admin", "hr", "accountant"] },
+      { href: "/attendance", label: "Attendance", icon: CalendarCheck, roles: ["admin", "sales", "accountant", "hr", "manager", "technician"] },
+      { href: "/tasks", label: "Tasks", icon: ClipboardList, roles: ["admin", "sales", "accountant", "hr", "manager", "technician"] },
+    ],
+  },
+  {
+    title: "Service",
+    items: [
+      { href: "/warranty", label: "Warranty", icon: Shield, roles: ["admin", "sales", "accountant", "technician"] },
+      { href: "/service", label: "Service Center", icon: Wrench, roles: ["admin", "sales", "manager", "technician"] },
+    ],
+  },
+  {
+    title: "Company",
+    items: [
+      { href: "/calendar", label: "Company Calendar", icon: CalendarDays, roles: ["admin"] },
+      { href: "/public-page", label: "Public page", icon: PanelTop, roles: ["admin"] },
+      { href: "/documents", label: "Documents", icon: FolderOpen, roles: ["admin", "hr", "accountant", "manager"] },
+      { href: "/settings", label: "Company Settings", icon: Settings, roles: ["admin"] },
+      { href: "/activity", label: "Activity Logs", icon: Activity, roles: ["admin"] },
+    ],
+  },
 ];
 
-function navLabel(item: (typeof NAV)[number], role: string) {
+function navLabel(item: NavItem, role: string) {
   if (role === "sales" && item.salesLabel) return item.salesLabel;
   if (role === "accountant" && item.accountantLabel) return item.accountantLabel;
   return item.label;
@@ -60,6 +123,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
   const [open, setOpen] = useState(false);
+  const [unread, setUnread] = useState(0);
 
   useEffect(() => {
     const u = getStoredUser();
@@ -67,24 +131,43 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       router.replace("/login");
       return;
     }
+    if (isDealer(u.role)) {
+      router.replace("/portal");
+      return;
+    }
     setUser(u);
   }, [router]);
 
-  const items = useMemo(
-    () => NAV.filter((n) => (user ? n.roles.includes(user.role) : false)),
+  useEffect(() => {
+    if (!user) return;
+    const load = () =>
+      api<{ count: number }>("/api/erp/notifications/unread_count/")
+        .then((d) => setUnread(d.count))
+        .catch(() => {});
+    load();
+    const t = setInterval(load, 60000);
+    return () => clearInterval(t);
+  }, [user]);
+
+  const groups = useMemo(
+    () =>
+      GROUPS.map((g) => ({
+        ...g,
+        items: g.items.filter((n) => (user ? n.roles.includes(user.role) : false)),
+      })).filter((g) => g.items.length > 0),
     [user]
   );
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-slate-500">
+      <div className="flex min-h-screen items-center justify-center text-slate-500 dark:bg-slate-950 dark:text-slate-400">
         Loading SPARS ERP…
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <aside
         className={cn(
           "fixed inset-y-0 left-0 z-40 flex w-64 flex-col erp-gradient text-white transition-transform lg:translate-x-0",
@@ -95,31 +178,38 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <img src="/kalpna-logo.jpg" alt="Kalpna Traders" className="h-12 w-12 rounded-xl bg-white object-contain p-0.5" />
           <div>
             <p className="text-sm font-extrabold tracking-wide">Kalpna Traders</p>
-            <p className="text-[11px] text-blue-100">SPARS ERP · PI System</p>
+            <p className="text-[11px] text-blue-100">SPARS ERP · Company OS</p>
           </div>
           <button className="ml-auto lg:hidden" onClick={() => setOpen(false)}>
             <X size={18} />
           </button>
         </div>
-        <nav className="mt-2 flex-1 space-y-1 px-3">
-          {items.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(item.href + "/");
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setOpen(false)}
-                className={cn(
-                  "flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
-                  active ? "bg-white text-navy shadow-sm" : "text-blue-100 hover:bg-white/10"
-                )}
-              >
-                <Icon size={18} />
-                {navLabel(item, user.role)}
-              </Link>
-            );
-          })}
+        <nav className="mt-1 flex-1 space-y-4 overflow-y-auto px-3 pb-4">
+          {groups.map((group) => (
+            <div key={group.title}>
+              <p className="px-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-blue-200/80">{group.title}</p>
+              <div className="space-y-0.5">
+                {group.items.map((item) => {
+                  const active = pathname === item.href || pathname.startsWith(item.href + "/");
+                  const Icon = item.icon;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setOpen(false)}
+                      className={cn(
+                        "flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition",
+                        active ? "bg-white text-navy shadow-sm" : "text-blue-100 hover:bg-white/10"
+                      )}
+                    >
+                      <Icon size={16} />
+                      {navLabel(item, user.role)}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </nav>
         <div className="m-3 rounded-xl bg-white/10 p-3">
           <p className="text-sm font-semibold">{user.name}</p>
@@ -140,17 +230,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/90 px-4 backdrop-blur">
-          <button className="rounded-lg p-2 hover:bg-slate-100 lg:hidden" onClick={() => setOpen(true)}>
+        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-slate-200 bg-white/90 px-4 backdrop-blur dark:border-slate-800 dark:bg-slate-900/90">
+          <button className="rounded-lg p-2 hover:bg-slate-100 dark:hover:bg-slate-800 lg:hidden" onClick={() => setOpen(true)}>
             <Menu size={20} />
           </button>
-          <div className="text-sm font-semibold text-navy">Kalpna Traders</div>
-          <div className="ml-auto text-xs text-slate-500">
-            {user.role === "sales"
-              ? `${user.name} · ${user.employee_id || "Sales"}`
-              : user.role === "accountant"
-                ? `${user.name} · ${user.employee_id || "Accounts"}`
-                : "Trust · Quality · Growth · GST Ready"}
+          <div className="text-sm font-semibold text-navy dark:text-white">Kalpna Traders</div>
+          <div className="ml-auto flex items-center gap-2">
+            <Link href="/notifications" className="relative rounded-lg border border-slate-200 bg-white p-2 dark:border-slate-700 dark:bg-slate-800">
+              <Bell size={16} />
+              {unread > 0 && (
+                <span className="absolute -right-1 -top-1 min-w-[16px] rounded-full bg-rose-600 px-1 text-center text-[10px] font-bold text-white">
+                  {unread > 9 ? "9+" : unread}
+                </span>
+              )}
+            </Link>
+            <ThemeToggle />
+            <div className="hidden text-xs text-slate-500 dark:text-slate-400 sm:block">
+              {user.name} · {user.employee_id || user.role}
+            </div>
           </div>
         </header>
         <main className="p-4 md:p-6 lg:p-8">{children}</main>

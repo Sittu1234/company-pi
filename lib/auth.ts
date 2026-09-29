@@ -67,10 +67,35 @@ export function isAccountant(role?: string) {
   return role === "accountant";
 }
 
+export function isHr(role?: string) {
+  return role === "hr";
+}
+
+export function isManager(role?: string) {
+  return role === "manager";
+}
+
+export function isTechnician(role?: string) {
+  return role === "technician";
+}
+
+export function isDealer(role?: string) {
+  return role === "dealer";
+}
+
+export function isInternal(role?: string) {
+  return !!role && role !== "dealer";
+}
+
 export function isCompanyViewer(role?: string) {
   return role === "admin" || role === "accountant";
 }
 
 export function canDeleteParties(role?: string) {
   return role === "admin";
+}
+
+export function homePath(role?: string) {
+  if (role === "dealer") return "/portal";
+  return "/dashboard";
 }
