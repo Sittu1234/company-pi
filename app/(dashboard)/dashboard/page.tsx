@@ -107,7 +107,7 @@ export default function DashboardPage() {
 
   const att = data?.my_attendance;
   const stats = [
-    { label: salesUser ? "My PIs" : "Total Proforma Invoices", value: data?.total_invoices ?? "-", icon: FileText, color: "bg-electric-50 text-electric" },
+    { label: salesUser ? "My tax invoices" : "Tax invoices", value: data?.total_invoices ?? "-", icon: FileText, color: "bg-electric-50 text-electric" },
     { label: salesUser ? "My Dealers" : "Total Dealers", value: data?.total_dealers ?? data?.total_customers ?? "-", icon: Users, color: "bg-sky-50 text-sky-700" },
     { label: salesUser ? "My invoiced sales" : "Invoiced this month", value: data ? formatINR(data.monthly_sales) : "-", icon: IndianRupee, color: "bg-emerald-50 text-emerald-700" },
     { label: "Pending Quotations", value: data?.pending_quotations ?? "-", icon: Clock, color: "bg-amber-50 text-amber-700" },
