@@ -1,0 +1,12 @@
+node_modules
+.next
+out
+.env*.local
+__pycache__/
+*.sqlite3
+.venv/
+venv/
+backend/.env
+media/products/*
+media/logos/*
+staticfiles/
